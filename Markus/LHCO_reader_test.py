@@ -9,15 +9,9 @@ from tqdm import tqdm
 #Variables
 c = 3 * (10 ** 8)
 
-event_list = [
-    "PP13-Sphaleron-THR9-FRZ15-NB33-71-NSUBP5.lhco",
-    "PP27-Sphaleron-THR16-FRZ20-NB33-101-NSUBP5.lhco",
-    "PP100-Sphaleron-THR20-FRZ22-NB33-113-NSUBP5.lhco",
-    "BlackMaxOutputFirstRun.lhco",
-    "BlackMaxOutputFirstRun2.lhco"
-]
+filename = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Markus/example.lhco"
 
-events = LHCO_reader.Events(f_name=event_list[3])
+events = LHCO_reader.Events(f_name = filename)
 print(events)
 
 #tau = lambda event: event.number()["tau"] == 1

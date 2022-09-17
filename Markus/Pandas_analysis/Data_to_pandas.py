@@ -4,18 +4,21 @@ import pandas as pd
 import numpy as np
 import os
 
-background_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Data/Background"
-bh_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Data/BH"
-sphaleron_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Data/Sphaleron"
+background_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Background"
+bh_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/BH"
+sphaleron_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Sphaleron"
+test_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Test"
 
 background_files = os.listdir(background_path)
 bh_files = os.listdir(bh_path)
 sphaleron_files = os.listdir(sphaleron_path)
+test_files = os.listdir(test_path)
 
 file_list = [
     background_files,
     bh_files,
-    sphaleron_files
+    sphaleron_files,
+    test_files
 ]
 
 def data_to_pandas(file_list):
@@ -24,13 +27,16 @@ def data_to_pandas(file_list):
     for file in file_list:
         if file_list == background_files:
             events = LHCO_reader.Events(f_name = background_path + "/" + file)
-            filename = background_path[:-10] + "Pandas/Background/" + file[:-5]
+            filename = background_path[:-15] + "Pandas/Background/" + file[:-5]
         elif file_list == bh_files:
             events = LHCO_reader.Events(f_name = bh_path + "/" + file)
-            filename = bh_path[:-2] + "Pandas/BH/" + file[:-5]
-        else:
+            filename = bh_path[:-7] + "Pandas/BH/" + file[:-5]
+        elif file_list == sphaleron_files:
             events = LHCO_reader.Events(f_name = sphaleron_path + "/" + file)
-            filename = sphaleron_path[:-9] + "Pandas/Sphaleron/" + file[:-5]
+            filename = sphaleron_path[:-14] + "Pandas/Sphaleron/" + file[:-5]
+        else:
+            events = LHCO_reader.Events(f_name = test_path + "/" + file)
+            filename = test_path[:-9] + "Pandas/Test/" + file[:-5]            
 
         for object in data_list:
             data = {

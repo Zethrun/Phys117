@@ -3,24 +3,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-background_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Markus/Data/Pandas/Background"
-bh_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Markus/Data/Pandas/BH"
-sphaleron_path = "C:/Users/mhals/AppData/Local/Programs/Programming/Scripts/Python/Prosjekt/Markus/Data/Pandas/Sphaleron"
+background_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Background"
+bh_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/BH"
+sphaleron_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Sphaleron"
+test_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Test"
 
 background_files = os.listdir(background_path)
 bh_files = os.listdir(bh_path)
 sphaleron_files = os.listdir(sphaleron_path)
+test_files = os.listdir(test_path)
 
 file_list = [
     [background_path + "/" + filename for filename in background_files],
     [bh_path + "/" + filename for filename in bh_files],
-    [sphaleron_path + "/" + filename for filename in sphaleron_files]
+    [sphaleron_path + "/" + filename for filename in sphaleron_files],
+    [test_path + "/" + filename for filename in test_files]
 ]
 
 def plot(files):
-    print(files)
-    figre, axis = plt.subplots(int(np.ceil(len(files)/5)), 5)
+    figure, axis = plt.subplots(int(np.ceil(len(files)/5)), 5)
     (x_pos, y_pos) = (0, 0)
+
     for i in range(len(files)):
         file = pd.read_csv(files[i])
         PT = np.array(file["PT"])
@@ -35,18 +38,21 @@ def plot(files):
             x.append(energy)
             y.append(j)
 
-        axis[x_pos, y_pos].plot(x, y)
-        axis[x_pos, y_pos].grid()
+        try:
+            axis[x_pos, y_pos].plot(x, y)
+            axis[x_pos, y_pos].grid()
+            axis[x_pos, y_pos].title(files[i])
+            y_pos += 1
+            if y_pos % 5 == 0:
+                x_pos += 1
+                y_pos = 0
+        except:
+            axis[x_pos].plot(x, y)
+            axis[x_pos].grid()
+            axis[x_pos].title(files[i])
+            x_pos += 1  
 
-        if x_pos == 0:
-            plt.ylabel(ylabel = "Events")
-        if y_pos == 4:
-            plt.xlabel(xlabel = "MET")
-
-        y_pos += 1
-        if y_pos % 5 == 0:
-            x_pos += 1
-            y_pos = 0
+        
 
     plt.show()
 

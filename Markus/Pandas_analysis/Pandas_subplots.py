@@ -20,9 +20,9 @@ file_list = [
     [test_path + "/" + filename for filename in test_files]
 ]
 
-def plot(files):
-    figure, axis = plt.subplots(int(np.ceil(len(files)/5)), 5)
-    (x_pos, y_pos) = (0, 0)
+def data_and_plot(files):
+    plt.figure()
+    (x_len, y_len) = plot_values(files)
 
     for i in range(len(files)):
         file = pd.read_csv(files[i])
@@ -38,25 +38,26 @@ def plot(files):
             x.append(energy)
             y.append(j)
 
-        try:
-            axis[x_pos, y_pos].plot(x, y)
-            axis[x_pos, y_pos].grid()
-            axis[x_pos, y_pos].title(files[i])
-            y_pos += 1
-            if y_pos % 5 == 0:
-                x_pos += 1
-                y_pos = 0
-        except:
-            axis[x_pos].plot(x, y)
-            axis[x_pos].grid()
-            axis[x_pos].title(files[i])
-            x_pos += 1  
-
-        
-
+        plot_style(x, y, x_len, y_len, i)
     plt.show()
 
+def plot_values(files):
+    plot_amount = len(files)
+    diff = 200
+    for i in range(1, plot_amount + 1):
+        for j in range(1, plot_amount + 1):
+            if i * j == plot_amount and np.abs(i - j) < diff:
+                diff = np.abs(i - j)
+                (x, y) = (np.min((i, j)), np.max((i, j)))
+    
+    return (x, y)
+
+def plot_style(x, y, x_len, y_len, i):
+    style = "seaborn-darkgrid"
+    plt.style.use(style)
+    plt.subplot(x_len, y_len, i + 1)
+    plt.plot(x, y, marker = ",")
+    plt.grid()
+
 for files in file_list:
-    plot(files)
-
-
+    data_and_plot(files)

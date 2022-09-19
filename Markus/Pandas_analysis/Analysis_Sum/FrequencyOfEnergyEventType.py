@@ -13,12 +13,12 @@ path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
 #Specifies data category to analyse and retrieves only those data files from above
-objects = ["electron", "jet", "MET", "photon", "tau"]
+stuffs = ["electron", "jet", "photon", "tau"]
 
 
 def specific_files(file_list):
-    objects_csv = [object + ".csv" for object in objects]
-    specific_file_list = [[file for object in objects_csv for file in files if file[-len(object):] == object] for files in file_list]
+    stuffs_csv = [stuff + ".csv" for stuff in stuffs]
+    specific_file_list = [[file for stuff in stuffs_csv for file in files if file[-len(stuff):] == stuff] for files in file_list]
     return specific_file_list
 
 

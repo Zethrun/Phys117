@@ -49,7 +49,7 @@ def fig_title(index_fig):
 
 #Takes index of subplot and returns the name of folder as title
 def subplot_title():
-    titles = objects
+    titles = stuffs
     return titles
 
 

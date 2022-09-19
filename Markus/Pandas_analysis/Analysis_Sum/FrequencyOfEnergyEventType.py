@@ -93,7 +93,7 @@ def plot_plot(data, x_len, y_len, index_plot, title):
         plt.style.use(style)
         plt.subplot(x_len, y_len, index_plot + 1)
         plt.title(title)
-        label = objects[index]
+        label = stuffs[index]
         plt.plot(data[index][0], data[index][1], label = label)
         plt.legend()
         plt.grid()

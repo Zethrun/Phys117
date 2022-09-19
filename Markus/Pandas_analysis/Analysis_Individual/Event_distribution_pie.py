@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 #Retrieves all files from data folder
-folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/"
+folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/"
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
@@ -59,8 +59,13 @@ def data_pie(files):
         counts = 0
 
         for file in category:
+            with open(file, 'r') as csv:
+                first_line = csv.readline()
+                your_data = csv.readlines()
+            ncol = first_line.count(',') + 1
+
             file = pd.read_csv(file)
-            counts += int(file.size/8)
+            counts += int(file.size/ncol)
              
         data.append(counts)
     

@@ -11,11 +11,6 @@ folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/"
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 file_names = os.listdir(folder_path)
-for index, files in enumerate(file_list):
-    for object in objects:
-        filename = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/Sum/" + file_names[index] + "/" + object + ".csv"
-        print(filename)
-
 
 def data_to_pandas(file_list):
     data_list = ["electron", "jet", "MET", "photon", "tau"]
@@ -31,17 +26,18 @@ def data_to_pandas(file_list):
                 "jmass":[],
                 "ntrk":[],
                 "btag":[],
-                "hadem":[]
+                "hadem":[],
+                "event#":[]
             }
 
-            (eta, phi, PT, jmass, ntrk, btag, hadem) = ([], [], [], [], [], [], [])
+            (eta, phi, PT, jmass, ntrk, btag, hadem, event_num) = ([], [], [], [], [], [], [], [])
 
             for file in files:
                 
                 events = LHCO_reader.Events(f_name = file)
 
 
-                for event in events:
+                for event_index, event in enumerate(events):
                     try:
                         for i in range(event.number()[object]):
                             eta.append(event[object][i]["eta"])
@@ -51,6 +47,7 @@ def data_to_pandas(file_list):
                             ntrk.append(event[object][i]["ntrk"])
                             btag.append(event[object][i]["btag"])
                             hadem.append(event[object][i]["hadem"])
+                            event_num.append(event_index)
                     except:
                         pass
             
@@ -61,7 +58,8 @@ def data_to_pandas(file_list):
             data["ntrk"] = ntrk
             data["btag"] = btag
             data["hadem"] = hadem
+            data["event#"] = event_num
             data = pd.DataFrame(data)
             data.to_csv(path_or_buf = filename + object + ".csv")
 
-#data_to_pandas(file_list)
+data_to_pandas(file_list)

@@ -4,39 +4,17 @@ import pandas as pd
 import numpy as np
 import os
 
-background_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Background"
-bh_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/BH"
-sphaleron_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Sphaleron"
-test_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Test"
-
-background_files = os.listdir(background_path)
-bh_files = os.listdir(bh_path)
-sphaleron_files = os.listdir(sphaleron_path)
-test_files = os.listdir(test_path)
-
-file_list = [
-    background_files,
-    bh_files,
-    sphaleron_files,
-    test_files
-]
+#Retrieves all files from data folder
+folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/"
+file_names = os.listdir(folder_path)
+path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
+file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
 def data_to_pandas(file_list):
-    data_list = ["jet", "electron", "tau", "photon", "MET"]
+    data_list = ["electron", "jet", "MET", "photon", "tau"]
 
-    for file in file_list:
-        if file_list == background_files:
-            events = LHCO_reader.Events(f_name = background_path + "/" + file)
-            filename = background_path[:-15] + "Pandas/Background/" + file[:-5]
-        elif file_list == bh_files:
-            events = LHCO_reader.Events(f_name = bh_path + "/" + file)
-            filename = bh_path[:-7] + "Pandas/BH/" + file[:-5]
-        elif file_list == sphaleron_files:
-            events = LHCO_reader.Events(f_name = sphaleron_path + "/" + file)
-            filename = sphaleron_path[:-14] + "Pandas/Sphaleron/" + file[:-5]
-        else:
-            events = LHCO_reader.Events(f_name = test_path + "/" + file)
-            filename = test_path[:-9] + "Pandas/Test/" + file[:-5]            
+    for index, files in enumerate(file_list):
+        filename = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/" + file_names[index] + "/Sum/"
 
         for object in data_list:
             data = {
@@ -48,20 +26,26 @@ def data_to_pandas(file_list):
                 "btag":[],
                 "hadem":[]
             }
+
             (eta, phi, PT, jmass, ntrk, btag, hadem) = ([], [], [], [], [], [], [])
 
-            for event in events:
-                try:
-                    for i in range(event.number()[object]):
-                        eta.append(event[object][i]["eta"])
-                        phi.append(event[object][i]["phi"])
-                        PT.append(event[object][i]["PT"])
-                        jmass.append(event[object][i]["jmass"])
-                        ntrk.append(event[object][i]["ntrk"])
-                        btag.append(event[object][i]["btag"])
-                        hadem.append(event[object][i]["hadem"])
-                except:
-                    pass
+            for file in files:
+                
+                events = LHCO_reader.Events(f_name = file)
+
+
+                for event in events:
+                    try:
+                        for i in range(event.number()[object]):
+                            eta.append(event[object][i]["eta"])
+                            phi.append(event[object][i]["phi"])
+                            PT.append(event[object][i]["PT"])
+                            jmass.append(event[object][i]["jmass"])
+                            ntrk.append(event[object][i]["ntrk"])
+                            btag.append(event[object][i]["btag"])
+                            hadem.append(event[object][i]["hadem"])
+                    except:
+                        pass
             
             data["eta"] = eta
             data["phi"] = phi
@@ -73,6 +57,4 @@ def data_to_pandas(file_list):
             data = pd.DataFrame(data)
             data.to_csv(path_or_buf = filename + object + ".csv")
 
-for file in file_list:
-    data_to_pandas(file)
-
+data_to_pandas(file_list)

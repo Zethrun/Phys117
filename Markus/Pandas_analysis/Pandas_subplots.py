@@ -3,22 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-background_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Background"
-bh_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/BH"
-sphaleron_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Sphaleron"
-test_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Test"
+#Retrieves all files from data folder
+folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/"
+path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
+file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
-background_files = os.listdir(background_path)
-bh_files = os.listdir(bh_path)
-sphaleron_files = os.listdir(sphaleron_path)
-test_files = os.listdir(test_path)
-
-file_list = [
-    [background_path + "/" + filename for filename in background_files],
-    [bh_path + "/" + filename for filename in bh_files],
-    [sphaleron_path + "/" + filename for filename in sphaleron_files],
-    [test_path + "/" + filename for filename in test_files]
-]
 
 def data_and_plot(files):
     plt.figure()
@@ -41,16 +30,21 @@ def data_and_plot(files):
         plot_style(x, y, x_len, y_len, i)
     plt.show()
 
+
 def plot_values(files):
     plot_amount = len(files)
     diff = 200
+
     for i in range(1, plot_amount + 1):
+
         for j in range(1, plot_amount + 1):
+            
             if i * j == plot_amount and np.abs(i - j) < diff:
                 diff = np.abs(i - j)
                 (x, y) = (np.min((i, j)), np.max((i, j)))
     
     return (x, y)
+
 
 def plot_style(x, y, x_len, y_len, i):
     style = "seaborn-darkgrid"
@@ -58,6 +52,7 @@ def plot_style(x, y, x_len, y_len, i):
     plt.subplot(x_len, y_len, i + 1)
     plt.plot(x, y, marker = ",")
     plt.grid()
+
 
 for files in file_list:
     data_and_plot(files)

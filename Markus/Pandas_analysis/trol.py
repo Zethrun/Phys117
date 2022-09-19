@@ -1,3 +1,5 @@
-string = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/"
-print(len(string))
-print(string[62:])
+import os
+import numpy as np
+
+for i in range(-10, 10):
+    print(i)

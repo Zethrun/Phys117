@@ -28,15 +28,18 @@ def plot_values(files):
     plot_amount = len(files)
     diff = 200
 
-    for i in range(1, plot_amount + 1):
+    for i in range(0, plot_amount + 1):
 
-        for j in range(1, plot_amount + 1):
+        for j in range(0, plot_amount + 1):
             
-            if i * j == plot_amount and np.abs(i - j) < diff:
+            if i + j == plot_amount and np.abs(i - j) < diff:
                 diff = np.abs(i - j)
-                (x, y) = (np.min((i, j)), np.max((i, j)))
-    
-    return (x, y)
+                x, y = np.max((i, j)), np.min((i, j))
+    if x == y == 1:
+        x, y = 2, 0
+
+    return x, y
+
 
 
 #Takes index of subplot and returns the name of folder as title

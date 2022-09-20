@@ -54,15 +54,18 @@ def plot_values(files):
     plot_amount = len(files)
     diff = 200
 
-    for i in range(1, plot_amount + 1):
+    for i in range(0, plot_amount + 1):
 
-        for j in range(1, plot_amount + 1):
+        for j in range(0, plot_amount + 1):
             
-            if i * j == plot_amount and np.abs(i - j) < diff:
+            if i + j == plot_amount and np.abs(i - j) < diff:
                 diff = np.abs(i - j)
-                x, y = np.min((i, j)), np.max((i, j))
-    
+                x, y = np.max((i, j)), np.min((i, j))
+    if x == y == 1:
+        x, y = 2, 0
+
     return x, y
+
 
 
 def plot_data(file_list):
@@ -85,8 +88,8 @@ def plot_data(file_list):
 def plot_style(subfigs_list, plot_index, subfig_data):
     plot_subfig = subfigs_list[int(np.floor(plot_index/2)), int(np.abs(np.sin(plot_index*np.pi/2)))]
     plot_titles = os.listdir(folder_path)
-    plot_subfig.suptitle(plot_titles[plot_index])
     subfigs = plot_subfig.subfigures(2, 1)
+    subfigs[0].suptitle(plot_titles[plot_index])
     axs_upper = subfigs[0].subplots(1, 2)
     axs_lower = subfigs[1].subplots(1, 3)
     subplot_titles = stuffs
@@ -99,21 +102,21 @@ def plot_style(subfigs_list, plot_index, subfig_data):
             ax = axs_lower[data_index - 2]
         
         ax.set_title(subplot_titles[data_index])
-        ax.grid()
         ax.bar(data[0], data[1])
-        
 
 
 def plot(file_list):
     fig = plt.figure()
-    #style = "seaborn-darkgrid"
-    #plt.style.use(style)
+    style = "seaborn-darkgrid"
+    plt.style.use(style)
     x_len, y_len = plot_values(file_list)
     subfigs_list = fig.subfigures(nrows = x_len, ncols = y_len)
     plt_data = plot_data(file_list)
+
     for plot_index, data in enumerate(plt_data):
         plot_style(subfigs_list, plot_index, data)
     
     plt.show()
+
 
 plot(specific_files(file_list))

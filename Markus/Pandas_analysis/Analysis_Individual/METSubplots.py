@@ -16,14 +16,14 @@ def data_and_plot(files):
     for i in range(len(files)):
         file = pd.read_csv(files[i])
         PT = np.array(file["PT"])
-        phi = np.array(file["phi"])
-        (PTx, PTy) = (0, 0)
+        #phi = np.array(file["phi"])
+        #(PTx, PTy) = (0, 0)
         (energies, events) = ([], [])
 
         for j in range(len(PT)):
-            PTx += PT[j]*np.cos(phi[j])
-            PTy += PT[j]*np.sin(phi[j])
-            energy = np.sqrt(np.square(PTx) + np.square(PTy))
+            #PTx += PT[j]*np.cos(phi[j])
+            #PTy += PT[j]*np.sin(phi[j])
+            energy = PT[j]
             energies.append(energy)
             events.append(j)
 

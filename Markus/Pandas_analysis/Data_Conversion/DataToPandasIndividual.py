@@ -13,7 +13,7 @@ folder_names = os.listdir(folder_path)
 file_names = [os.listdir(folder_name) for folder_name in path_list]
 
 def data_to_pandas(file_list):
-    data_list = ["electron", "jet", "MET", "photon", "tau"]
+    stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     for index_folder, files in enumerate(file_list):
 
         for index_file, file in enumerate(files):
@@ -21,7 +21,7 @@ def data_to_pandas(file_list):
 
             events = LHCO_reader.Events(f_name = file)
 
-            for object in data_list:
+            for stuff in stuffs:
                 data = {
                     "eta":[],
                     "phi":[],
@@ -37,14 +37,14 @@ def data_to_pandas(file_list):
 
                 for event_index, event in enumerate(events):
                     try:
-                        for i in range(event.number()[object]):
-                            eta.append(event[object][i]["eta"])
-                            phi.append(event[object][i]["phi"])
-                            PT.append(event[object][i]["PT"])
-                            jmass.append(event[object][i]["jmass"])
-                            ntrk.append(event[object][i]["ntrk"])
-                            btag.append(event[object][i]["btag"])
-                            hadem.append(event[object][i]["hadem"])
+                        for i in range(event.number()[stuff]):
+                            eta.append(event[stuff][i]["eta"])
+                            phi.append(event[stuff][i]["phi"])
+                            PT.append(event[stuff][i]["PT"])
+                            jmass.append(event[stuff][i]["jmass"])
+                            ntrk.append(event[stuff][i]["ntrk"])
+                            btag.append(event[stuff][i]["btag"])
+                            hadem.append(event[stuff][i]["hadem"])
                             event_num.append(event_index)
                     except:
                         pass
@@ -58,7 +58,7 @@ def data_to_pandas(file_list):
                 data["hadem"] = hadem
                 data["event#"] = event_num
                 data = pd.DataFrame(data)
-                data.to_csv(path_or_buf = filename + object + ".csv")
+                data.to_csv(path_or_buf = filename + stuff + ".csv")
 
 
 data_to_pandas(file_list)

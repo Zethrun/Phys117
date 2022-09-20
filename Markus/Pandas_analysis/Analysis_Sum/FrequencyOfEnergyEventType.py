@@ -13,7 +13,7 @@ path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
 #Specifies data category to analyse and retrieves only those data files from above
-stuffs = ["electron", "jet", "photon", "tau"]
+stuffs = ["electron", "jet", "muon", "photon", "tau"]
 
 
 def specific_files(file_list):

@@ -4,17 +4,17 @@ import pandas as pd
 import os
 
 #########
-background_path = "data/data_lhco/background"
-blackhole_path = "data/data_lhco/BH"
-sphaleron_path = "data/data_lhco/sphaleron"
+background_path = "Daniel/data/data_lhco/background"
+blackhole_path = "Daniel/data/data_lhco/BH"
+sphaleron_path = "Daniel/data/data_lhco/sphaleron"
 
-new_sep_background_path = "data/data_pandas/gathered_seperated/background"
-new_sep_blackhole_path = "data/data_pandas/gathered_seperated/BH"
-new_sep_sphaleron_path = "data/data_pandas/gathered_seperated/sphaleron"
+new_sep_background_path = "Daniel/data/data_pandas/gathered_seperated/background"
+new_sep_blackhole_path = "Daniel/data/data_pandas/gathered_seperated/BH"
+new_sep_sphaleron_path = "Daniel/data/data_pandas/gathered_seperated/sphaleron"
 
-new_norm_background_path = "data/data_pandas/normal/background"
-new_norm_blackhole_path = "data/data_pandas/normal/BH"
-new_norm_sphaleron_path = "data/data_pandas/normal/sphaleron"
+new_norm_background_path = "Daniel/data/data_pandas/normal/background"
+new_norm_blackhole_path = "Daniel/data/data_pandas/normal/BH"
+new_norm_sphaleron_path = "Daniel/data/data_pandas/normal/sphaleron"
 #########
 
 
@@ -180,5 +180,5 @@ def conv_seperate_gather_particles(data_folder_path, output_folder_path): #folde
         csv_file.to_csv(output_folder_path + "/" + particle + ".csv")
 
 #conv_singlefile(background_path, new_norm_background_path, "ttbar.lhco")
-#conv_files_normally(sphaleron_path,new_norm_sphaleron_path)
-conv_seperate_gather_particles(background_path, new_sep_background_path)
+conv_files_normally(background_path,new_norm_background_path)
+#conv_seperate_gather_particles(sphaleron_path, new_sep_sphaleron_path)

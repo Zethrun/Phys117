@@ -5,9 +5,9 @@ import pandas as pd
 import os
 import tqdm
 
-background_path = "data/data_lhco/background"
-blackhole_path = "data/data_lhco/BH"
-sphaleron_path = "data/data_lhco/sphaleron"
+background_path = "Daniel/data/data_lhco/background"
+blackhole_path = "Daniel/data/data_lhco/BH"
+sphaleron_path = "Daniel/data/data_lhco/sphaleron"
 
 ### Accessing data ###
 

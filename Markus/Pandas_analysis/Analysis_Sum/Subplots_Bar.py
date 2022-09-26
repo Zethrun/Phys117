@@ -54,9 +54,9 @@ def data_filter(data):
     return data
 
 
-def binsize_func(PT):
+def binsize_func(data):
     bin_amount = 100
-    diff = np.max(PT) - np.min(PT)
+    diff = np.max(data) - np.min(data)
     binsize = diff/bin_amount
     bins = []
     for index in range(bin_amount):
@@ -65,11 +65,11 @@ def binsize_func(PT):
     return binsize, bins
 
 
-def xy_data(PT):
+def xy_data(data):
     x, y = [], []
-    binsize, bins = binsize_func(PT)
+    binsize, bins = binsize_func(data)
     for index, bin in enumerate(bins):
-        temp = np.array(PT)
+        temp = np.array(data)
         temp = temp[temp > index*binsize]
         temp = temp[temp <= (index + 1)*binsize]
         x.append((index + 1/2)*binsize)

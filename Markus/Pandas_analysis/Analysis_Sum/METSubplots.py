@@ -11,7 +11,7 @@ folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Su
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
-stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
+stuffs = ["electron", "jet", "MET", "muon"]
 
 
 def specific_files(file_list):
@@ -116,14 +116,14 @@ def plot_style(subfigs_list, plot_index, subfig_data):
         subfigs = plot_subfig.subfigures(2, 1)
     else:
         subfigs = [plot_subfig.subfigures(1, 1)]
-
+    print(subfigs)
     subfigs[0].suptitle(plot_titles[plot_index])
-
     axs = []
     subplot_titles = stuffs
 
     if len(subfigs) == 1:
         axs_lower = subfigs[0].subplots(1, x_len)
+
         if x_len == 1:
             axs.append([axs_lower])
         else:
@@ -134,10 +134,12 @@ def plot_style(subfigs_list, plot_index, subfig_data):
             ax = axs[0][index]
             ax.set_title(subplot_titles[index])
             ax.bar(data[0], data[1], width = binsize)
+    
     else:
         axs_lower = subfigs[0].subplots(1, x_len)
         axs_upper = subfigs[1].subplots(1, y_len)
         axs.append(axs_lower)
+
         if y_len == 1:
             axs.append([axs_upper])
         else:
@@ -166,6 +168,7 @@ def plot(file_list):
         plot_style(subfigs_list, plot_index, data)
     
     plt.show()
+
 
 for i in range(len(stuffs)):
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]

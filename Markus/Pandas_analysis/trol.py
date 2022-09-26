@@ -1,5 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-
-for i in range(4): 
-    print(int(np.floor(i/2)), int(np.abs(np.sin(i*np.pi/2))))
+data = [1, 2, 3, 4, 5, 3, 2 ,1]
+bins = [0, 1, 2, 3, 4, 5, 6, 7]
+plt.hist(data, bins = 100)
+plt.show()

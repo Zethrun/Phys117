@@ -62,7 +62,7 @@ def binsize_func(data):
     for index in range(bin_amount):
         bins.append(index*binsize)
 
-    return binsize, bins
+    return bins
 
 
 def data_func(files, filter):
@@ -173,12 +173,12 @@ def plot(file_list):
         subplots_data = data_func(files, filter = True)
         subplots_titles = stuffs
 
-        for subplot_index, file in enumerate(files):
+        for subplot_index in range(len(files)):
             data = subplots_data[subplot_index]
             title = subplots_titles[subplot_index]
             ax = subplots[subplot_index]
             ax.set_title(title)
-            binsize, bins = binsize_func(data)
+            bins = binsize_func(data)
             ax.hist(data, bins)
 
     plt.show()

@@ -62,7 +62,7 @@ def binsize_func(data):
     for index in range(bin_amount):
         bins.append(index*binsize)
 
-    return binsize, bins
+    return bins
 
 
 def data_func(files, filter):
@@ -128,7 +128,6 @@ def subfigs_func(fig, files):
 
 def plot(file_list):
     fig = plt.figure()
-    fig.suptitle("pls fucking work")
     style = "seaborn-darkgrid"
     plt.style.use(style)
     fig_subfigs = subfigs_func(fig, file_list)
@@ -144,10 +143,10 @@ def plot(file_list):
         subplot_data = data_func(files, filter = True)
         subplot_legends = stuffs
 
-        for subplot_index, file in enumerate(files):
+        for subplot_index in range(len(files)):
             data = subplot_data[subplot_index]
             title = subplot_legends[subplot_index]
-            binsize, bins = binsize_func(data)
+            bins = binsize_func(data)
             ax.hist(data, bins, alpha = 0.75,  label = title, density = True)
         
         ax.legend()

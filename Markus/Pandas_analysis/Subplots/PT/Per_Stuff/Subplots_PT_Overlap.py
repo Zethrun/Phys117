@@ -62,7 +62,7 @@ def binsize_func(data):
     for index in range(bin_amount):
         bins.append(index*binsize)
 
-    return binsize, bins
+    return bins
 
 
 def data_func(files, filter):
@@ -140,14 +140,14 @@ def plot(file_list):
         subfig.suptitle(title)
         ax = subfig.subplots(1, 1)
         ax.set_xlabel("PT [GeV]")
-        ax.set_ylabel("Number of Events")
+        ax.set_ylabel("Percent of Events")
         subplot_data = data_func(files, filter = True)
         subplot_legends = stuffs
 
-        for subplot_index, file in enumerate(files):
+        for subplot_index in range(len(files)):
             data = subplot_data[subplot_index]
             title = subplot_legends[subplot_index]
-            binsize, bins = binsize_func(data)
+            bins = binsize_func(data)
             ax.hist(data, bins, alpha = 0.75,  label = title, density = True)
         
         ax.legend()

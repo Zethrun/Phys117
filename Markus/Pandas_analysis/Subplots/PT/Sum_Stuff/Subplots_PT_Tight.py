@@ -64,8 +64,7 @@ def data_func(files, filter):
             PT = file["PT"]
         plt_data.append(PT)
 
-    return plt_data
-
+    return np.concatenate(plt_data)
 
 
 def fig_dim(files):
@@ -118,12 +117,10 @@ def subfigs_func(fig, files):
 
 def plot(file_list):
     fig = plt.figure()
-    fig.suptitle("pls fucking work")
     style = "seaborn-darkgrid"
     plt.style.use(style)
     fig_subfigs = subfigs_func(fig, file_list)
     plot_titles = os.listdir(folder_path)
-    bins_list = []
 
     for plot_index, files in enumerate(file_list):
         subfig = fig_subfigs[plot_index]
@@ -131,7 +128,7 @@ def plot(file_list):
         subfig.suptitle(title)
         ax = subfig.subplots(1, 1)
         ax.set_xlabel("PT [GeV]")
-        ax.set_ylabel("Number of Events")
+        ax.set_ylabel("Percent of Events")
         subplot_data = data_func(files, filter = True)
         ax.hist(subplot_data, bins = 30, density = True, label = stuffs)
         ax.legend()

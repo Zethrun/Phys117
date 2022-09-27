@@ -1,7 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import os
 
-data = [1, 2, 3, 4, 5, 3, 2 ,1]
-bins = [0, 1, 2, 3, 4, 5, 6, 7]
-plt.hist(data, bins = 100)
-plt.show()
+file = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Sum/Background/"
+file_list = [file + filename for filename in os.listdir(file)]
+
+def data_func(files):
+    plt_data = []
+    for file in files:
+        file = pd.read_csv(file)
+        PT = file["PT"][:5]
+        event_num = file["event#"][:5]
+        stack = np.vstack((PT, event_num))
+        plt_data.append(stack)
+
+    return plt_data
+
+data = data_func(file_list)
+print(data)

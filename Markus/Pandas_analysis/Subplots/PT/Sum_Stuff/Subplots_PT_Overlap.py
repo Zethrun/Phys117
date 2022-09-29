@@ -103,9 +103,8 @@ def dict_to_data(data_list, files):
     for data in data_list:
         for tuple in data:
             pt_sum[tuple[1]] += tuple[0]
-            if tuple[0] == 0:
-                print(tuple)
-                break
+        
+    print(pt_sum)
 
     return list(pt_sum.values())
 
@@ -170,7 +169,7 @@ def plot(folder_list):
         title = plot_titles[plot_index]
         subfig.suptitle(title)
         ax = subfig.subplots(1, 1)
-        ax.set_xlabel("PT [GeV]")
+        ax.set_xlabel("HT [GeV]")
         ax.set_ylabel("Frequency of Events")
         folder_name = folder_path + os.listdir(folder_path)[plot_index]
         file_names = os.listdir(folder_name)

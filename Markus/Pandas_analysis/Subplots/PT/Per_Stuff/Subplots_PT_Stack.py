@@ -21,21 +21,21 @@ def path_list_func(path):
     return path_list
 
 
-def file_list_func(path_list):
-    file_list = []
+def folder_list_func(path_list):
+    folder_list = []
     for path in path_list:
         temp_list = []
         for name in os.listdir(path):
             temp_list.append(path + "/" + name)
-        file_list.append(temp_list)
+        folder_list.append(temp_list)
 
-    return file_list
+    return folder_list
 
 
-def filtered_list(file_list, stuffs):
+def filtered_list(folder_list, stuffs):
     stuffs_csv = [stuff + ".csv" for stuff in stuffs]
     filtered_files = []
-    for files in file_list:
+    for files in folder_list:
         temp_list = []
         for file in files:
             for stuff in stuffs_csv:
@@ -115,20 +115,20 @@ def subfigs_func(fig, files):
     return subfigs_list
 
 
-def plot(file_list):
+def plot(folder_list):
     fig = plt.figure()
     style = "seaborn-darkgrid"
     plt.style.use(style)
-    fig_subfigs = subfigs_func(fig, file_list)
+    fig_subfigs = subfigs_func(fig, folder_list)
     plot_titles = os.listdir(folder_path)
 
-    for plot_index, files in enumerate(file_list):
+    for plot_index, files in enumerate(folder_list):
         subfig = fig_subfigs[plot_index]
         title = plot_titles[plot_index]
         subfig.suptitle(title)
         ax = subfig.subplots(1, 1)
         ax.set_xlabel("PT [GeV]")
-        ax.set_ylabel("Percent of Events")
+        ax.set_ylabel("Frequency of Events")
         subplot_data = data_func(files, filter = True)
         ax.hist(subplot_data, bins = 200, stacked = True, density = True, label = stuffs)
         ax.legend()
@@ -139,6 +139,6 @@ def plot(file_list):
 for i in range(len(stuffs)):
     stuffs_temp = stuffs[:(1 + i)]
 
-    files_list = filtered_list(file_list_func(path_list_func(folder_path)), stuffs_temp)
+    files_list = filtered_list(folder_list_func(path_list_func(folder_path)), stuffs_temp)
 
     plot(files_list)

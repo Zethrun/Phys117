@@ -1,13 +1,11 @@
-import pandas as pd
+import math
 import numpy as np
-import os
 
-file = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/Background/ttbar_largejetjet.csv"
+a = [1, 2, 3, 4]
+b = [5, 6, 7, 8]
 
-with open(file, 'r') as csv:
-     first_line = csv.readline()
-     your_data = csv.readlines()
+c = tuple(zip(a, b))
+print(c)
 
-ncol = first_line.count(',') + 1 
-
-print(ncol)
+for i in range(len(c)):
+     print(c[i])

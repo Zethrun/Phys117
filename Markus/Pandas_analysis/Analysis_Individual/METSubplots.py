@@ -54,5 +54,4 @@ def plot_style(x, y, x_len, y_len, i):
     plt.grid()
 
 
-for files in file_list:
-    data_and_plot(files)
+print(file_list)

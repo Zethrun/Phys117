@@ -1,4 +1,5 @@
 import enum
+from fileinput import filename
 from LHCO_reader import partition_problem as pp
 from LHCO_reader import LHCO_reader
 import pandas as pd
@@ -17,7 +18,7 @@ def data_to_pandas(file_list):
     for index_folder, files in enumerate(file_list):
 
         for index_file, file in enumerate(files):
-            filename = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/Individual/" + folder_names[index_folder] + "/" + file_names[index_folder][index_file][:-len(".lhco")]
+            foldername = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/Individual/" + folder_names[index_folder] + "/" + file_names[index_folder][index_file][:-len(".lhco")] + "/"
 
             events = LHCO_reader.Events(f_name = file)
 
@@ -58,7 +59,11 @@ def data_to_pandas(file_list):
                 data["hadem"] = hadem
                 data["event#"] = event_num
                 data = pd.DataFrame(data)
-                data.to_csv(path_or_buf = filename + stuff + ".csv")
+                try:
+                    os.makedirs(foldername)
+                except:
+                    pass
+                data.to_csv(path_or_buf = foldername + stuff + ".csv")
 
 
 data_to_pandas(file_list)

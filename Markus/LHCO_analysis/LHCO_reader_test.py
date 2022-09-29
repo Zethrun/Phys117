@@ -9,7 +9,7 @@ from tqdm import tqdm
 #Variables
 c = 3 * (10 ** 8)
 
-filename = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Test/example.lhco"
+filename = "Data/LHCO/Test/example.lhco"
 
 events = LHCO_reader.Events(f_name = filename)
 print(events)

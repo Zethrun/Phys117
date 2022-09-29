@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import os
 
-folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/"
+folder_path = "Data/Pandas/Individual/"
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 
 def path_list_func(path):
@@ -103,8 +103,6 @@ def dict_to_data(data_list, files):
     for data in data_list:
         for tuple in data:
             pt_sum[tuple[1]] += tuple[0]
-        
-    print(pt_sum)
 
     return list(pt_sum.values())
 
@@ -183,7 +181,6 @@ def plot(folder_list):
         ax.legend(prop = {'size': 8})
 
     plt.show()
-
 
 folder_list = filtered_list(folder_list_func(path_list_func(folder_path)), stuffs)
 plot(folder_list)

@@ -5,7 +5,7 @@ import os
 from difflib import SequenceMatcher as sm
 
 #Retrieves all files from data folder
-folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/"
+folder_path = "Data/Pandas/Individual/"
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 

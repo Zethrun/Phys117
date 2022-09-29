@@ -7,7 +7,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/"
+folder_path = "Data/LHCO/"
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 
@@ -22,7 +22,7 @@ file_list = [[path + "/" + filename for filename in os.listdir(path)] for path i
             
 #         print(sumx, sumy)
 
-file = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/LHCO/Background/ttbar_largejet.lhco"
+file = "Data/LHCO/Background/ttbar_largejet.lhco"
 
 events = LHCO_reader.Events(f_name = file)
 for index, event in enumerate(events):

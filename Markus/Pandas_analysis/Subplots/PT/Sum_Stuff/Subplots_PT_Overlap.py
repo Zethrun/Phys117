@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import os
 
-folder_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/"
+folder_path = "Data/Pandas/Individual/"
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 
 def path_list_func(path):

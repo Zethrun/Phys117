@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-file = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Sum/Background/"
+file = "Data/Pandas/Sum/Background/"
 file_list = [file + filename for filename in os.listdir(file)]
 
 def data_func(files):

@@ -66,50 +66,65 @@ def data_filter(data):
     return data
 
 
-def data_func(folder, filter):
+def data_func(folder, filter, MET):
     temp_list_1 = []
     for files in folder:
         temp_list_2 = []
-        for file in files:
-            file = pd.read_csv(file)
-            PT = file["PT"]
-            event_num = file["event#"]
-            temp_list_2.append(tuple(zip(PT, event_num)))
+        for index, file in enumerate(files):
+            if MET == True and index == 2:
+                file = pd.read_csv(file)
+                PT = file["PT"]
+                event_num = file["event#"]
+                temp_list_2.append(tuple(zip(PT, event_num)))
+            elif MET == False:
+                file = pd.read_csv(file)
+                PT = file["PT"]
+                event_num = file["event#"]
+                temp_list_2.append(tuple(zip(PT, event_num)))
+            else:
+                pass
+
         temp_list_1.append(temp_list_2)
     
     data_list = []
     for data in temp_list_1:
         if filter == True:
-            plt_data = data_filter(dict_to_data(data, files))
+            plt_data = data_filter(dict_to_data(data, files, MET))
         else:
-            plt_data = dict_to_data(data, files)
+            plt_data = dict_to_data(data, files, MET)
         data_list.append(plt_data)
 
     return data_list
 
-    
-def event_num_finder(data_list, files):
-    for index, data in enumerate(data_list):
-        if files[index][-len("MET.csv"):] == "MET.csv":
-            event_num = len(data)
+
+def event_num_finder(data_list, files, MET):
+    if MET == True:
+        data = data_list[0]
+        event_num = len(data)
+    else:
+        for index, data in enumerate(data_list):
+            if files[index][-len("MET.csv"):] == "MET.csv":
+                event_num = len(data)
     
     return event_num
 
 
-def dict_to_data(data_list, files):
-    event_num = event_num_finder(data_list, files)
+def dict_to_data(data_list, files, MET):
+    event_num = event_num_finder(data_list, files, MET)
     pt_sum = {}
     for i in range(event_num):
         pt_sum[i] = 0
 
-    for data in data_list:
-        for tuple in data:
-            pt_sum[tuple[1]] += tuple[0]
-            if tuple[0] == 0:
-                print(tuple)
-                break
+    for index, data in enumerate(data_list):
+        if MET == True:
+            for tuple in data:
+                pt_sum[tuple[1]] += tuple[0]
+        elif MET == False and index != 2:
+            for tuple in data:
+                pt_sum[tuple[1]] += tuple[0]
 
     return list(pt_sum.values())
+
 
 
 def fig_dim(files):
@@ -176,7 +191,7 @@ def plot(folder_list):
         ax.set_ylabel("Frequency of Events")
         folder_name = folder_path + os.listdir(folder_path)[plot_index]
         file_names = os.listdir(folder_name)
-        subplot_data = data_func(folder, filter = False)
+        subplot_data = data_func(folder, filter = False, MET = True)
         ax.hist(subplot_data, bins = 30, density = True, label = file_names)
         ax.legend(prop = {'size': 8})
         

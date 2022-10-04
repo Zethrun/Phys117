@@ -10,7 +10,7 @@ import matplotlib.gridspec as gridspec
 import os
 
 folder_path = "Data/Pandas/Individual/"
-stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
+stuffs = ["MET"]
 
 def path_list_func(path):
     temp_list = []

@@ -199,6 +199,5 @@ def plot(folder_list):
 
     plt.show()
 
-
 folder_list = filtered_list(folder_list_func(path_list_func(folder_path)), stuffs)
 plot(folder_list)

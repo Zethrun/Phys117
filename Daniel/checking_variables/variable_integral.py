@@ -163,7 +163,7 @@ def HT_dist(org_files_folder, plot_comparison, picking_file_order, random_pick =
             
     return [HT_lists[0], HT_lists[1]], "HT[Gev]"
 
-
+'1w'
 
 
 
@@ -229,10 +229,10 @@ def calculate_bin(data, binsize):
 
 
 def calculate_variables(data, bin_ls):
+    pass
     
     
-    
-    return efficiency_list, efficiency_bar
+    """return efficiency_list, efficiency_bar"""
 
 
 

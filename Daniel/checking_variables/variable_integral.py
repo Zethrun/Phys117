@@ -291,7 +291,7 @@ def calculate_efficiency(data):
             else:
                 efficiency_list.append([e_1_l, e_2_l])
     
-    return efficiency_list
+        return efficiency_list
 
 
 

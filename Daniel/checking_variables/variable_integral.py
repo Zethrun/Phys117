@@ -247,7 +247,7 @@ def calculate_efficiency(data):
                 data_filelist[type_data[1][0]] = type_data_file
         
         count_1, bins_1 = np.histogram(data_filelist[file_names[0]])
-        count_2, bins_2 = np.histogram(data_filelist[file_names[0]])
+        count_2, bins_2 = np.histogram(data_filelist[file_names[1]])
         
         for k_index, k in enumerate(bin_ls[:-1]):
             #1_file left
@@ -282,7 +282,7 @@ def calculate_efficiency(data):
                     
             area_r_total = area_f_1_r + area_f_2_r
             e_1_r = area_f_1_r / area_r_total
-            e_2_r = area_f_2_r / area_r_total
+            e_2_r = area_f_2_r / area_r_total)
             
             if (e_1_l + e_2_l) < (e_1_r + e_2_r):
                 efficiency_list.append([e_1_l, e_2_l])

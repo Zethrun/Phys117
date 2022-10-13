@@ -13,10 +13,10 @@ import random
 folder_path = "Data/Pandas/Individual/" ###
 
 ### Paths ###
-background_path_sep = "Data/Pandas/individual/Background"
+background_path_sep = "Data/Pandas/individual/background"
 blackhole_path_sep = "Data/Pandas/individual/BH"
-sphaleron_path_sep = "Data/Pandas/individual/Sphaleron"
-test_path_sep = "Data/Pandas/individual/Test"
+sphaleron_path_sep = "Data/Pandas/individual/sphaleron"
+test_path_sep = "Data/Pandas/individual/test"
 
 background_path_sum = "Data/Pandas/Sum/Background"
 blackhole_path_sum = "Data/Pandas/Sum/BH"
@@ -83,6 +83,7 @@ def org_files_folder(path_list_tuple):
 #only works for sep
 
 def find_files_for_analysis(org_files_folder, plot_comparison, picking_file_order, random_pick = False, multiple_amount_tuple = None):
+    folder_path = "Data/Pandas/individual/"
     #pick_file_order is a list if not single
     pick_file_order_multiple = picking_file_order
         
@@ -123,9 +124,9 @@ def find_files_for_analysis(org_files_folder, plot_comparison, picking_file_orde
     
     picked_files_1 = [files_1[i] for i in picks_1]
     picked_files_2 = [files_2[i] for i in picks_2]
-    files_1_path = [file[0].removesuffix("/electron.csv") for file in picked_files_1]
-    files_2_path = [file[0].removesuffix("/electron.csv") for file in picked_files_2]
-    return picked_files_1, picked_files_2, files_1_path, files_2_path, picks_1_names, picks_2_names
+    files_1_path_new = [folder_path + plot_comparison[0] + "/" + file for file in picks_file_1]
+    files_2_path_new = [folder_path + plot_comparison[1] + "/" + file for file in picks_file_2]
+    return picked_files_1, picked_files_2, files_1_path_new, files_2_path_new, picks_1_names, picks_2_names
 
 
 
@@ -229,72 +230,76 @@ def calculate_bin(data, binsize): # must be data[0] inserted to the function
 
 
 
-def calculate_efficiency(data):
-    data = data[0]
+def calculate_efficiency(data, return_list = False, return_sep = False, for_itterate = False):
+    if for_itterate:
+        data = data
+    if not for_itterate:
+        data = data[0]
+    efficiencies_list = []
+    efficiencies_list_sep = []
     bin_ls = calculate_bin(data, binsize)
     dx = bin_ls[2] - bin_ls[1]
-    data_filelist = {}
-    file_names = []
-    efficiency_list = [] # first index is list of the file_names
-    check = len(data[0][0])
-    if check > 2:
-        print("This only works with a pair of data_file")
+    data_filelist = [{}, {}]
+    file_names = [[], []]
+    
+    check = len(data[0][0] - len(data[1][0]))
+    if check != 0:
+        print("This only works with pairs of data_file")
         return None
     else:
-        for type_data in data:
-            file_names.append(type_data[1][0])
+        for index, type_data in enumerate(data):
+            file_names[index].append(type_data[1][0])
             for type_data_file in type_data[0]:
-                data_filelist[type_data[1][0]] = type_data_file
+                data_filelist[index][type_data[1][0]] = type_data_file
         
-        count_1, bins_1 = np.histogram(data_filelist[file_names[0]])
-        count_2, bins_2 = np.histogram(data_filelist[file_names[1]])
-        
-        for k_index, k in enumerate(bin_ls[:-1]):
-            #1_file left
-            area_f_1_l = 0
-            area_f_2_l = 0
-                        
-            for index, i in enumerate(bin_ls[:-1]):
-                try:
-                    if i < k_index:
-                        area_f_1_l += count_1[index]*dx
-                    elif i >= k_index:
-                        area_f_2_l += count_2[index]*dx
-                except:
-                    pass
+        for round in range(len(data[0][0])):
+            efficiency_list = [] # first index is list of the file_names
+            efficiency_list_sep = []
             
-            area_l_total = area_f_1_l + area_f_2_l
-            e_1_l = area_f_1_l / area_l_total
-            e_2_l = area_f_2_l / area_l_total
-            
-            #1_file right
-            area_f_1_r = 0
-            area_f_2_r = 0
-            
-            for index, i in enumerate(bin_ls[:-1]):
-                try:
-                    if i < k_index:
-                        area_f_1_r += count_1[index]*dx
-                    elif i >= k_index:
-                        area_f_2_r += count_2[index]*dx
-                except:
-                    pass
+            count_1, bins_1 = np.histogram(data_filelist[file_names[0]],bin_ls)
+            count_2, bins_2 = np.histogram(data_filelist[file_names[1]],bin_ls)
+            norm_fact_1 = 1/(sum(count_1))
+            norm_fact_2 = 1/(sum(count_2))
+            count_1 = norm_fact_1 * np.array(count_1)
+            count_2 = norm_fact_2 * np.array(count_2)
+
+
+            for k_index, k in enumerate(bin_ls[1:-1]):
+                A_total = np.sum(count_1) + np.sum(count_2)   
+                A_1_left = np.sum(count_1[:k_index])
+                A_1_right = np.sum(count_1[k_index:-1])
+                A_2_left = np.sum(count_2[:k_index])
+                A_2_right = np.sum(count_2[k_index:-1])
+                
+                #file1 left, file2 right, alfa:
+                e_1_alfa, e_2_alfa = A_1_left/A_total, A_2_right/A_total
+                e_T_alfa = e_1_alfa + e_2_alfa
+                
+                #file1 right, file left, beta:
+                e_1_beta, e_2_beta = A_1_right/A_total, A_2_left/A_total
+                e_T_beta = e_1_beta + e_2_beta
                     
-            area_r_total = area_f_1_r + area_f_2_r
-            e_1_r = area_f_1_r / area_r_total
-            e_2_r = area_f_2_r / area_r_total)
-            
-            if (e_1_l + e_2_l) < (e_1_r + e_2_r):
-                efficiency_list.append([e_1_l, e_2_l])
-            elif  (e_1_l + e_2_l) > (e_1_r + e_2_r):
-                efficiency_list.append([e_1_r, e_2_r])
+                if e_T_alfa >= e_T_beta:
+                    efficiency_list.append(e_T_alfa)
+                    efficiency_list_sep.append([e_1_alfa, e_2_alfa])
+                elif e_T_alfa < e_T_beta:
+                    efficiency_list.append(e_T_beta)
+                    efficiency_list_sep.append([e_1_beta, e_2_beta])
+                
+        if return_list == True:
+            if return_sep == True:
+                return efficiency_list_sep
             else:
-                efficiency_list.append([e_1_l, e_2_l])
+                return efficiency_list
+        else:
+            max_efficiency = np.max(efficiency_list)
+        return max_efficiency
+
+def itterate_efficiency(data):
+    data = data[0]
+    data_filelist = [data[0][0][0],[data[0][1][0]]]
+    data_filelist_T = list(zip(*data_filelist))
     
-        return efficiency_list
-
-
-
 
 
 def plot(data, plt_hist=False, seperate_plot = False, efficiency = False):
@@ -314,6 +319,7 @@ def plot(data, plt_hist=False, seperate_plot = False, efficiency = False):
                 counts, bins = np.histogram(type_data_file,bin_ls)
                 bin_ls = bin_ls[:-1]
                 norm_fact = 1/(sum(counts))
+                #norm_fact = 1/(sum(counts) * binsize)
                 counts = norm_fact * np.array(counts)
                 
                 plt.plot(bin_ls,counts)

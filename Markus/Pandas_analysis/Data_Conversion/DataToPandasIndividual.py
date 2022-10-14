@@ -7,7 +7,7 @@ import numpy as np
 import os
 
 #Retrieves all files from data folder
-folder_path = "Data/LHCO/"
+folder_path = "Data/LHCO/Testing/"
 path_list = [folder_path + folder_name for folder_name in os.listdir(folder_path)]
 file_list = [[path + "/" + filename for filename in os.listdir(path)] for path in path_list]
 folder_names = os.listdir(folder_path)
@@ -18,7 +18,7 @@ def data_to_pandas(file_list):
     for index_folder, files in enumerate(file_list):
 
         for index_file, file in enumerate(files):
-            foldername = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/Individual/" + folder_names[index_folder] + "/" + file_names[index_folder][index_file][:-len(".lhco")] + "/"
+            foldername = os.path.dirname(os.path.dirname(folder_path)) + "/Pandas/Test/" + folder_names[index_folder] + "/" + file_names[index_folder][index_file][:-len(".lhco")] + "/"
 
             events = LHCO_reader.Events(f_name = file)
 

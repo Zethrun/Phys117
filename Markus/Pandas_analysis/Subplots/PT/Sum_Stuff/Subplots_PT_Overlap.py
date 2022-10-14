@@ -10,7 +10,7 @@ import matplotlib.gridspec as gridspec
 import os
 
 folder_path = "Data/Pandas/Individual/"
-stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
+stuffs = ["electron", "jet", "MET", "muon"]
 
 def path_list_func(path):
     temp_list = []
@@ -94,7 +94,8 @@ def data_func(folder, filter, MET):
         data_list.append(plt_data)
 
     return data_list
-    
+
+
 def event_num_finder(data_list, files, MET):
     if MET == True:
         data = data_list[0]
@@ -189,12 +190,7 @@ def plot(folder_list):
         folder_name = folder_path + os.listdir(folder_path)[plot_index]
         file_names = os.listdir(folder_name)
         subplots_data = data_func(folder, filter = False, MET = True)
-
-        for subplot_index, files in enumerate(folder):
-            subplot_data = subplots_data[subplot_index]
-            title = file_names[subplot_index]
-            ax.hist(subplot_data, bins = 30, alpha = 0.75,  label = title, density = True, histtype = "step")
-        
+        ax.hist(subplots_data, bins = 30, alpha = 0.75,  label = file_names, density = True, histtype = "step")
         ax.legend(prop = {'size': 8})
 
     plt.show()

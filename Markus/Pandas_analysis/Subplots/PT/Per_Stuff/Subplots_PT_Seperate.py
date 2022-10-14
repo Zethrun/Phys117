@@ -67,7 +67,6 @@ def data_func(files, filter):
     return plt_data
 
 
-
 def fig_dim(files):
     plot_amount = len(files)
     dim = int(np.ceil(np.sqrt(plot_amount)))

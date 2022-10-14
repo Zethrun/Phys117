@@ -130,6 +130,7 @@ def plot(folder_list):
         ax.set_xlabel("PT [GeV]")
         ax.set_ylabel("Frequency of Events")
         subplot_data = data_func(files, filter = True)
+        print(subplot_data)
         ax.hist(subplot_data, bins = 200, stacked = True, density = True, label = stuffs)
         ax.legend()
 

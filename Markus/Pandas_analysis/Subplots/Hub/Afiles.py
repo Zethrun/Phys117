@@ -1,7 +1,7 @@
 import random
 import os
 
-def files(individual, data_path, folders, stuffs, file_amounts):
+def files(individual, folders, stuffs, file_amounts):
     stuffs = [stuff + ".csv" for stuff in stuffs]
 
     def retrieve_folder_paths(data_path):
@@ -48,7 +48,7 @@ def files(individual, data_path, folders, stuffs, file_amounts):
         return new_file_names
     
     if individual:
-        data_path = "Data/Pandas/Individual/"
+        data_path = "C:/Users/mhals/Dropbox/PC/Documents/GitHub/Phys117/Data/Pandas/Individual/"
         folder_paths = retrieve_folder_paths(data_path)
         folder_file_paths, folder_file_names = retrieve_file_paths(folder_paths, file_amounts)
         data_folders = retrieve_file_data_paths(folder_file_paths)

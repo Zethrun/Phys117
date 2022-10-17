@@ -231,10 +231,7 @@ def calculate_bin(data, binsize): # must be data[0] inserted to the function
 
 
 def calculate_efficiency(data, return_list = False, return_sep = False, for_itterate = False):
-    if for_itterate:
-        data = data
-    if not for_itterate:
-        data = data[0]
+    data = data[0]
     efficiencies_list = []
     efficiencies_list_sep = []
     bin_ls = calculate_bin(data, binsize)
@@ -248,9 +245,9 @@ def calculate_efficiency(data, return_list = False, return_sep = False, for_itte
         return None
     else:
         for index, type_data in enumerate(data):
-            file_names[index].append(type_data[1][0])
-            for type_data_file in type_data[0]:
-                data_filelist[index][type_data[1][0]] = type_data_file
+            file_names[index] = type_data[1][1]
+            for index_2, type_data_file in enumerate(type_data[0]):
+                data_filelist[index][file_names[index][index_2]] = type_data_file
         
         for round in range(len(data[0][0])):
             efficiency_list = [] # first index is list of the file_names
@@ -342,9 +339,9 @@ alpha = 0.8
 
 #files
 plot_comparison = ["BH", "sphaleron"]
-picking_file_order = [["BH_n4_M8"], ["PP13-Sphaleron-THR9-FRZ15-NB33-60-NSUBP50"]]
+picking_file_order = [["BH_n4_M8", "BH_n4_M10"], ["PP13-Sphaleron-THR9-FRZ15-NB33-60-NSUBP50"]]
 
 data = HT_dist(org_files_folder(path_list_sep), plot_comparison, picking_file_order, random_pick = False, multiple_amount_tuple=(3,1))
-print(calculate_efficiency(data))
+#print(calculate_efficiency(data))
 plot(data)
 print(2)

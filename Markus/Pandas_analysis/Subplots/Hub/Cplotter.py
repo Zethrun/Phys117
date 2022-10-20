@@ -1,10 +1,21 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def unpacker(folder_data, new_folder_data):
     for nested_list in folder_data:
         if type(nested_list) == list:
             unpacker(nested_list, new_folder_data)
+        else:
+            new_folder_data.append(nested_list)
+    folder_data = new_folder_data
+    return folder_data
+
+
+def tuple_unpacker(folder_data, new_folder_data):
+    for nested_list in folder_data:
+        if type(nested_list) == list or type(nested_list) == tuple:
+            tuple_unpacker(nested_list, new_folder_data)
         else:
             new_folder_data.append(nested_list)
     folder_data = new_folder_data
@@ -19,6 +30,13 @@ def binfinder(plot_data, binsize):
     
 
 def data_binner(data, binsize, plot):
+    data = [data for data in tuple_unpacker(data, []) if type(data) != str]
+
+    if len(data) == 0:
+        x = [bin * binsize for bin in range(200)]
+        y = [0 for bin in range(200)]
+        return x, y
+
     max_value = np.max(data)
     bins = int(np.round(max_value / binsize))
     bins = np.arange(0, bins)
@@ -49,23 +67,22 @@ def data_binner(data, binsize, plot):
         y = y/np.sum(y)
 
         return x, y
+ 
+
+def plot_filter(interval_data, filter_strength):
+    interval_data = sorted([data for data in tuple_unpacker(interval_data, []) if type(data) != str])
+    cutoff = round((len(interval_data) * filter_strength))
+    interval_data = interval_data[:cutoff]
+    x_min = np.min(interval_data)
+    x_max = np.max(interval_data)
+    extra = (x_max - x_min) / 10
+    return [x_min - extra, x_max + extra]
 
 
-def plot_filter(interval_data, filter_strengths):
-    variable_data = np.array(interval_data)
-    mean = np.mean(variable_data)
-    std_dev = np.std(variable_data)
-    x_limit_min = mean - filter_strengths[0]*std_dev
-    x_limit_max = mean + filter_strengths[1]*std_dev
-    if np.min(interval_data) >= 0 and x_limit_min <=0:
-        x_limit_min = 0
-    if np.max(interval_data) <= x_limit_max:
-        x_limit_max = np.max(interval_data)
-    return [x_limit_min, x_limit_max]
-
-
-def efficiency_value(data, binsize):
+def efficiency_value(subplots, data, xlabel, folders, binsize, interval_data, filter_strength):
     bh_data, sphal_data = data
+    bh_data = [data for data in tuple_unpacker(bh_data, []) if type(data) != str]
+    sphal_data = [data for data in tuple_unpacker(sphal_data, []) if type(data) != str]
     x_bh, y_bh = data_binner(bh_data, binsize, plot = False)
     x_sphal, y_sphal = data_binner(sphal_data, binsize, plot = False)
     x_interval = np.concatenate((x_bh, x_sphal))
@@ -73,242 +90,178 @@ def efficiency_value(data, binsize):
     bins = int(np.round((x_max - x_min)/binsize))
     efficiencies = [[[], []] for i in range(len(["left", "right"]))]
     x = [x_min + (bin + 1)*binsize for bin in range(bins + 1)]
+    total_efficiencies = []
 
     for bin in range(bins + 1):
-        sphal_left = y_sphal[:bin + 1]
-        sphal_right = y_sphal[bin + 1:]
-        sphal_split = [sphal_left, sphal_right]
-
         bh_left = y_bh[:bin + 1]
         bh_right = y_bh[bin + 1:]
         bh_split = [bh_left, bh_right]
+        
+        sphal_left = y_sphal[:bin + 1]
+        sphal_right = y_sphal[bin + 1:]
+        sphal_split = [sphal_right, sphal_left]
 
+        temp_efficiency = []
         for i in range(len(["left", "right"])):
-            sphal_efficiency = np.sum(sphal_split[i])/2
-            efficiencies[i][0].append(sphal_efficiency)
-            bh_efficiency = np.sum(bh_split[i])/2
-            efficiencies[i][1].append(bh_efficiency)
+            bh_efficiency = np.sum(bh_split[i])
+            efficiencies[i][0].append(bh_efficiency)
+            sphal_efficiency = np.sum(sphal_split[i])
+            efficiencies[i][1].append(sphal_efficiency)
+            total_efficiency = bh_efficiency + sphal_efficiency
+            temp_efficiency.append(total_efficiency)
 
-    return x, efficiencies
+        total_efficiencies.append((np.max(temp_efficiency), bin))
+    
+    max_efficiency = sorted(total_efficiencies, key = lambda x: x[0])[-1]
+    me_value = max_efficiency[0] / 2
+    me_bin = max_efficiency[1]
+    me_x = x_min + me_bin * binsize
+    
+    for side_index, side in enumerate(efficiencies):
+        subplot = subplots[side_index + 1]
+        subplot.axvline(me_x, label = "max efficiency is " + str(int(np.round(me_value * 100)) / 100) + " at " + str(int(np.round(me_x * 100)) / 100))
+        subplot.set_xlabel(xlabel)
+        subplot.set_ylabel("Relative Efficiencies")
+        for folder_index, folder in enumerate(side):
+            sides = ["left", "right"] if side_index == 0 else ["right", "left"]
+            label = "efficiencies for " + folders[folder_index] + " to the " + sides[folder_index]
+            subplot.plot(x, folder, label = label)
+        x_interval = plot_filter(interval_data, filter_strength)
+        subplot.set_xlim(x_interval)
+        subplot.legend(prop = {'size': 8}, loc = "upper right")
 
 
-def MET_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot):
+def MET_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
     fig = plt.figure()
     style = "seaborn-darkgrid"
     plt.style.use(style)
+    title = "MET Distribution"
+    fig.suptitle(title)
 
-    if compare:
-        if efficiencies_plot:
-            subplots = fig.subplots(1, 2)
-            data_subplot = subplots[0]
-            efficiencies_subplot = subplots[1]
-            efficiencies_subplot.set_xlabel(xlabel)
-            efficiencies_subplot.set_ylabel("Relative Efficiencies")
-            title = "Maximum Measured PT Distribution per event"
-            efficiencies_subplot.set_title(title)
-        else:
-            data_subplot = fig.subplots(1, 1)
-        data_subplot.set_xlabel(xlabel)
-        data_subplot.set_ylabel("Frequency of Events")
-        title = "Maximum Measured PT Distribution per event"
-        data_subplot.set_title(title)
-        interval_data = unpacker(folders_data, [])
-        x_interval = plot_filter(interval_data, filter_strengths)
-        data_subplot.set_xlim(x_interval)
-
-        for folder_index, folder_data in enumerate(folders_data):
-            if combine_files:
-                data = folder_data
-                x, y = data_binner(data, binsize, plot = True)
-                labels = folders
-                label = labels[folder_index]
-                data_subplot.plot(x, y, label = label)
-            else:
-                labels = filename_list[folder_index]
-                for data_index, data in enumerate(folder_data):
-                    x, y = data_binner(data, binsize, plot = True)
-                    label = labels[data_index]
-                    data_subplot.plot(x, y, label = label)
-        if efficiencies_plot:
-            x, efficiencies = efficiency_value(folders_data, binsize)
-            sides = ["left", "right"]
-            for side_index, side in enumerate(efficiencies):
-                for folder_index, folder in enumerate(side):
-                    label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                    efficiencies_subplot.plot(x, folder, label = label)
-            x_interval = plot_filter(interval_data, filter_strengths)
-            efficiencies_subplot.set_xlim(x_interval)
-            efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-        data_subplot.legend(prop = {'size': 8})
-    else:
-        subfigs = fig.subfigures(1, len(folders_data))
-        titles = folders
-        for folder_index, folder_data in enumerate(folders_data):
-            subfig = subfigs[folder_index]
-            data_subplot = subfig.subplots(1, 1)
-            title = titles[folder_index]
-            data_subplot.set_title(title)
-            data_subplot.set_xlabel(xlabel)
-            data_subplot.set_ylabel("Frequency of Events")
-            interval_data = unpacker(folders_data, [])
-            x_interval = plot_filter(interval_data, filter_strengths)
-            data_subplot.set_xlim(x_interval)
-            if combine_files:
-                data = folder_data
-                x, y = data_binner(data, binsize, plot = True)
-                labels = folders
-                label = labels[folder_index]
-                data_subplot.plot(x, y, label = label)
-            else:
-                labels = filename_list[folder_index]
-                for data_index, data in enumerate(folder_data):
-                    x, y = data_binner(data, binsize, plot = True)
-                    label = labels[data_index]
-                    data_subplot.plot(x, y, label = label)
-            data_subplot.legend(prop = {'size': 8})
-
-    plt.show()
-
-
-def HT_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot):
-    fig = plt.figure()
-    style = "seaborn-darkgrid"
-    plt.style.use(style)
-
-    if compare:
-        if efficiencies_plot:
-            subplots = fig.subplots(1, 2)
-            data_subplot = subplots[0]
-            efficiencies_subplot = subplots[1]
-            efficiencies_subplot.set_xlabel(xlabel)
-            efficiencies_subplot.set_ylabel("Relative Efficiencies")
-            title = "Maximum Measured PT Distribution per event"
-            efficiencies_subplot.set_title(title)
-        else:
-            data_subplot = fig.subplots(1, 1)
-        data_subplot.set_xlabel(xlabel)
-        data_subplot.set_ylabel("Frequency of Events")
-        title = "Maximum Measured PT Distribution per event"
-        data_subplot.set_title(title)
-        interval_data = unpacker(folders_data, [])
-        x_interval = plot_filter(interval_data, filter_strengths)
-        data_subplot.set_xlim(x_interval)
-
-        for folder_index, folder_data in enumerate(folders_data):
-            if combine_files:
-                data = folder_data
-                x, y = data_binner(data, binsize, plot = True)
-                labels = folders
-                label = labels[folder_index]
-                data_subplot.plot(x, y, label = label)
-            else:
-                labels = filename_list[folder_index]
-                for data_index, data in enumerate(folder_data):
-                    x, y = data_binner(data, binsize, plot = True)
-                    label = labels[data_index]
-                    data_subplot.plot(x, y, label = label)
-        if efficiencies_plot:
-            x, efficiencies = efficiency_value(folders_data, binsize)
-            sides = ["left", "right"]
-            for side_index, side in enumerate(efficiencies):
-                for folder_index, folder in enumerate(side):
-                    label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                    efficiencies_subplot.plot(x, folder, label = label)
-            x_interval = plot_filter(interval_data, filter_strengths)
-            efficiencies_subplot.set_xlim(x_interval)
-            efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-        data_subplot.legend(prop = {'size': 8})
-    else:
-        subfigs = fig.subfigures(1, len(folders_data))
-        titles = folders
-        for folder_index, folder_data in enumerate(folders_data):
-            subfig = subfigs[folder_index]
-            data_subplot = subfig.subplots(1, 1)
-            title = titles[folder_index]
-            data_subplot.set_title(title)
-            data_subplot.set_xlabel(xlabel)
-            data_subplot.set_ylabel("Frequency of Events")
-            interval_data = unpacker(folders_data, [])
-            x_interval = plot_filter(interval_data, filter_strengths)
-            data_subplot.set_xlim(x_interval)
-            if combine_files:
-                data = folder_data
-                x, y = data_binner(data, binsize, plot = True)
-                labels = folders
-                label = labels[folder_index]
-                data_subplot.plot(x, y, label = label)
-            else:
-                labels = filename_list[folder_index]
-                for data_index, data in enumerate(folder_data):
-                    x, y = data_binner(data, binsize, plot = True)
-                    label = labels[data_index]
-                    data_subplot.plot(x, y, label = label)
-            data_subplot.legend(prop = {'size': 8})
-
-    plt.show()
-
-
-def stuff_amount_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot):
-    fig = plt.figure()
-    style = "seaborn-darkgrid"
-    plt.style.use(style)
     if efficiencies_plot:
-        subplots = fig.subplots(1, 2)
+        subplots = fig.subplots(1, 3)
+        efficiency_data = []
         data_subplot = subplots[0]
-        efficiencies_subplot = subplots[1]
-        efficiencies_subplot.set_xlabel(xlabel)
-        efficiencies_subplot.set_ylabel("Relative Efficiencies")
-        title = "Maximum Measured PT Distribution per event"
-        efficiencies_subplot.set_title(title)
     else:
         data_subplot = fig.subplots(1, 1)
+
     data_subplot.set_xlabel(xlabel)
     data_subplot.set_ylabel("Frequency of Events")
-    title = "Maximum Measured PT Distribution per event"
-    data_subplot.set_title(title)
     interval_data = unpacker(folders_data, [])
-    x_interval = plot_filter(interval_data, filter_strengths)
+    x_interval = plot_filter(interval_data, filter_strength)
     data_subplot.set_xlim(x_interval)
-    bins = binfinder(folders_data, binsize)
-    
-    if combine_files:
-        amount_data = [unpacker(folder_data, []) for folder_data in folders_data]
-        labels = folders
-        data_subplot.hist(amount_data, bins = bins, alpha = 0.75, label = labels, density = True)
-        if efficiencies_plot:
-            x, efficiencies = efficiency_value(folders_data, binsize)
-            sides = ["left", "right"]
-            for side_index, side in enumerate(efficiencies):
-                for folder_index, folder in enumerate(side):
-                    label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                    efficiencies_subplot.plot(x, folder, label = label)
-            x_interval = plot_filter(interval_data, filter_strengths)
-            efficiencies_subplot.set_xlim(x_interval)
-            efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-        
-    else:
-        for folder_index, folder_data in enumerate(folders_data):
+
+    for folder_index, folder_data in enumerate(folders_data):
+
+        if combine_files:
+            plot_data = folder_data
+            efficiency_data.append(plot_data) if efficiencies_plot else None
+            x, y = data_binner(plot_data, binsize, plot = True)
+            labels = folders
+            label = labels[folder_index]
+            data_subplot.plot(x, y, label = label)
+        else:
             labels = filename_list[folder_index]
             for file_index, file_data in enumerate(folder_data):
-                amount_data = file_data
+                plot_data = file_data
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
                 label = labels[file_index]
-                data_subplot.hist(amount_data, bins = bins, alpha = 0.75, label = label, density = True)
-        if efficiencies_plot:
-            x, efficiencies = efficiency_value(folders_data, binsize)
-            sides = ["left", "right"]
-            for side_index, side in enumerate(efficiencies):
-                for folder_index, folder in enumerate(side):
-                    label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                    efficiencies_subplot.plot(x, folder, label = label)
-            x_interval = plot_filter(interval_data, filter_strengths)
-            efficiencies_subplot.set_xlim(x_interval)
-            efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
+                data_subplot.plot(x, y, label = label)
 
+    if efficiencies_plot:
+        efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
+    data_subplot.legend(prop = {'size': 8})
+    plt.show()
+
+
+def HT_dist_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
+    fig = plt.figure()
+    style = "seaborn-darkgrid"
+    plt.style.use(style)
+    title = "HT Distribution"
+    fig.suptitle(title)
+
+    if efficiencies_plot:
+        subplots = fig.subplots(1, 3)
+        efficiency_data = []
+        data_subplot = subplots[0]
+    else:
+        data_subplot = fig.subplots(1, 1)
+
+    data_subplot.set_xlabel(xlabel)
+    data_subplot.set_ylabel("Frequency of Events")
+    interval_data = unpacker(folders_data, [])
+    x_interval = plot_filter(interval_data, filter_strength)
+    data_subplot.set_xlim(x_interval)
+
+    for folder_index, folder_data in enumerate(folders_data):
+        if combine_files:
+            plot_data = folder_data
+            efficiency_data.append(plot_data) if efficiencies_plot else None
+            x, y = data_binner(plot_data, binsize, plot = True)
+            labels = folders
+            label = labels[folder_index]
+            data_subplot.plot(x, y, label = label)
+        else:
+            labels = filename_list[folder_index]
+            for file_index, file_data in enumerate(folder_data):
+                plot_data = file_data
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                label = labels[file_index]
+                data_subplot.plot(x, y, label = label)
+    
+    if efficiencies_plot:
+        efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
+    data_subplot.legend(prop = {'size': 8})
+    plt.show()
+
+
+def stuff_amount_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
+    fig = plt.figure()
+    style = "seaborn-darkgrid"
+    plt.style.use(style)
+    title = "Total Particle Type Distribution"
+    fig.suptitle(title)
+
+    if efficiencies_plot:
+        subplots = fig.subplots(1, 3)
+        efficiency_data = []
+        data_subplot = subplots[0]
+    else:
+        data_subplot = fig.subplots(1, 1)
+
+    data_subplot.set_xlabel(xlabel)
+    data_subplot.set_ylabel("Frequency of Events")
+    interval_data = unpacker(folders_data, [])
+    x_interval = plot_filter(interval_data, filter_strength)
+    data_subplot.set_xlim(x_interval)
+    
+    for folder_index, folder_data in enumerate(folders_data):
+        if combine_files:
+            plot_data = unpacker(folder_data, [])
+            efficiency_data.append(plot_data) if efficiencies_plot else None
+            x, y = data_binner(plot_data, binsize, plot = True)
+            labels = folders
+            label = labels[folder_index]
+            data_subplot.plot(x, y, alpha = 0.75, label = label)
+        else:
+            labels = filename_list[folder_index]
+            for file_index, file_data in enumerate(folder_data):
+                plot_data = unpacker(file_data, [])
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                label = labels[file_index]
+                data_subplot.plot(x, y, alpha = 0.75, label = label)
+
+    if efficiencies_plot:
+        efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
     data_subplot.legend(prop = {'size': 8})    
     plt.show()
 
 
-def stuff_counts_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot):
+def stuff_counts_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
     fig = plt.figure()
     style = "seaborn-darkgrid"
     plt.style.use(style)
@@ -320,62 +273,46 @@ def stuff_counts_plot(folders_data, folders, filename_list, stuffs, binsize, fil
 
     for stuff_index, stuff in enumerate(stuffs):
         subfig = subfigs[stuff_index]
+        title = "Particle Type Distribution for " + stuff
+        subfig.suptitle(title)
+
         if efficiencies_plot:
-            subplots = subfig.subplots(1, 2)
+            subplots = subfig.subplots(1, 3)
+            efficiency_data = []
             data_subplot = subplots[0]
-            efficiencies_subplot = subplots[1]
-            efficiencies_subplot.set_xlabel(xlabel)
-            efficiencies_subplot.set_ylabel("Relative Efficiencies")
-            title = "Maximum Measured PT Distribution per event"
-            efficiencies_subplot.set_title(title)
         else:
             data_subplot = subfig.subplots(1, 1)
+
         data_subplot.set_xlabel(xlabel)
         data_subplot.set_ylabel("Frequency of Events")
-        title = "Maximum Measured PT Distribution per event"
-        data_subplot.set_title(title)
         interval_data = unpacker(folders_data, [])
-        x_interval = plot_filter(interval_data, filter_strengths)
+        x_interval = plot_filter(interval_data, filter_strength)
         data_subplot.set_xlim(x_interval)
-        bins = binfinder(folders_data, binsize)
 
-        if combine_files:
-            plot_data = [unpacker(folder_data[stuff_index], []) for folder_data in folders_data]
-            labels = folders
-            data_subplot.hist(plot_data, bins = bins, alpha = 0.75, label = labels, density = True)
-            if efficiencies_plot:
-                x, efficiencies = efficiency_value(folders_data, binsize)
-                sides = ["left", "right"]
-                for side_index, side in enumerate(efficiencies):
-                    for folder_index, folder in enumerate(side):
-                        label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                        efficiencies_subplot.plot(x, folder, label = label)
-                x_interval = plot_filter(interval_data, filter_strengths)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-        else:
-            for folder_index, folder_data in enumerate(folders_data):
+        for folder_index, folder_data in enumerate(folders_data):
+            if combine_files:
+                plot_data = unpacker(folder_data[stuff_index], [])
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                labels = folders
+                label = labels[folder_index]
+                data_subplot.plot(x, y, alpha = 0.75, label = label)
+            else:
                 labels = filename_list[folder_index]
                 for file_index, file_data in enumerate(folder_data):
-                    for count_index, count_data in enumerate(file_data):
-                        if count_index == stuff_index:
-                            label = labels[file_index]
-                            data_subplot.hist(count_data, bins = bins, alpha = 0.75, label = label, density = True)
-            if efficiencies_plot:
-                x, efficiencies = efficiency_value(folders_data, binsize)
-                sides = ["left", "right"]
-                for side_index, side in enumerate(efficiencies):
-                    for folder_index, folder in enumerate(side):
-                        label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                        efficiencies_subplot.plot(x, folder, label = label)
-                x_interval = plot_filter(interval_data, filter_strengths)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
+                    plot_data = file_data[stuff_index]
+                    efficiency_data.append(plot_data) if efficiencies_plot else None
+                    x, y = data_binner(plot_data, binsize, plot = True)
+                    label = labels[file_index]
+                    data_subplot.plot(x, y, alpha = 0.75, label = label)
+        
+        if efficiencies_plot:
+            efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
         data_subplot.legend(prop = {'size': 8})
     plt.show()
     
     
-def PT_max_plot(folders_data, folders, filename_list, stuffs, by_particle, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot):
+def PT_max_plot(folders_data, folders, filename_list, stuffs, by_particle, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
     fig = plt.figure()
     style = "seaborn-darkgrid"
     plt.style.use(style)
@@ -386,119 +323,195 @@ def PT_max_plot(folders_data, folders, filename_list, stuffs, by_particle, binsi
         subfigs_1 = subfigs_y[0].subfigures(1, 2)
         subfigs_2 = subfigs_y[1].subfigures(1, 3)
         subfigs = [*subfigs_1, *subfigs_2]
-    else:
-        fig = fig
-    
-    if by_particle:
+
         for stuff_index, stuff in enumerate(stuffs):
             subfig = subfigs[stuff_index]
+            title = "Maximum PT per event for " + stuff + "s"
+            subfig.suptitle(title)
+
             if efficiencies_plot:
-                subplots = subfig.subplots(1, 2)
+                subplots = subfig.subplots(1, 3)
+                efficiency_data = []
                 data_subplot = subplots[0]
-                efficiencies_subplot = subplots[1]
-                efficiencies_subplot.set_xlabel(xlabel)
-                efficiencies_subplot.set_ylabel("Relative Efficiencies")
-                title = "Maximum Measured PT Distribution per event"
-                efficiencies_subplot.set_title(title)
             else:
                 data_subplot = subfig.subplots(1, 1)
+
             data_subplot.set_xlabel(xlabel)
             data_subplot.set_ylabel("Frequency of Events")
-            title = "Maximum Measured PT Distribution per event"
-            data_subplot.set_title(title)
-            interval_data = unpacker(folders_data, [])
-            x_interval = plot_filter(interval_data, filter_strengths)
+            interval_data = [event_data[0] for event_data in unpacker(folders_data, []) if event_data[-1] == stuff]
+            x_interval = plot_filter(interval_data, filter_strength)
             data_subplot.set_xlim(x_interval)
-            bin_data = [unpacker(folder_data, []) for folder_data in folders_data]
-            bin_data = [event_data[0] for folder_data in bin_data for event_data in folder_data if event_data[-1] == stuff]
-            bins = binfinder(bin_data, binsize)
-            
-            if combine_files:
-                plot_data = [unpacker(folder_data, []) for folder_data in folders_data]
-                plot_data = [[event_data[0] for event_data in folder_data if event_data[-1] == stuff] for folder_data in plot_data]
-                labels = folders
-                data_subplot.hist(plot_data, bins = bins, alpha = 0.75, label = labels, density = True)
-                if efficiencies_plot:
-                    x, efficiencies = efficiency_value(folders_data, binsize)
-                    sides = ["left", "right"]
-                    for side_index, side in enumerate(efficiencies):
-                        for folder_index, folder in enumerate(side):
-                            label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                            efficiencies_subplot.plot(x, folder, label = label)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-            else:
-                for folder_index, folder_data in enumerate(folders_data):
-                    labels = filename_list[folder_index]
+
+            for folder_index, folder_data in enumerate(folders_data):
+                if combine_files:
+                    plot_data = [event_data[0] for event_data in folder_data if event_data[-1] == stuff]
+                    efficiency_data.append(plot_data) if efficiencies_plot else None
+                    x, y = data_binner(plot_data, binsize, plot = True)
+                    labels = folders
+                    label = labels[folder_index]
+                    data_subplot.plot(x, y, alpha = 0.75, label = label)
+                else:
                     for file_index, file_data in enumerate(folder_data):
                         plot_data = [event_data[0] for event_data in file_data if event_data[-1] == stuff]
+                        efficiency_data.append(plot_data) if efficiencies_plot else None
+                        x, y = data_binner(plot_data, binsize, plot = True)
+                        labels = filename_list[folder_index]
                         label = labels[file_index]
-                        data_subplot.hist(plot_data, bins = bins, alpha = 0.75, label = label, density = True)
+                        data_subplot.plot(x, y, alpha = 0.75, label = label)
+            
             if efficiencies_plot:
-                x, efficiencies = efficiency_value(folders_data, binsize)
-                sides = ["left", "right"]
-                for side_index, side in enumerate(efficiencies):
-                    for folder_index, folder in enumerate(side):
-                        label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                        efficiencies_subplot.plot(x, folder, label = label)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
+                efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
             data_subplot.legend(prop = {'size': 8})
     else:
+        title = "Maximum Measured PT Distribution per event"
+        fig.suptitle(title)
+
         if efficiencies_plot:
-            subplots = fig.subplots(1, 2)
+            subplots = fig.subplots(1, 3)
+            efficiency_data = []
             data_subplot = subplots[0]
-            efficiencies_subplot = subplots[1]
-            efficiencies_subplot.set_xlabel(xlabel)
-            efficiencies_subplot.set_ylabel("Relative Efficiencies")
-            title = "Maximum Measured PT Distribution per event"
-            efficiencies_subplot.set_title(title)
         else:
             data_subplot = fig.subplots(1, 1)
+
         data_subplot.set_xlabel(xlabel)
         data_subplot.set_ylabel("Frequency of Events")
-        title = "Maximum Measured PT Distribution per event"
-        data_subplot.set_title(title)
         interval_data = unpacker(folders_data, [])
-        x_interval = plot_filter(interval_data, filter_strengths)
+        x_interval = plot_filter(interval_data, filter_strength)
         data_subplot.set_xlim(x_interval)
-        bin_data = [unpacker(folder_data, []) for folder_data in folders_data]
-        bins = binfinder(bin_data, binsize)
         
-        if combine_files:
-            plot_data = [unpacker(folder_data, []) for folder_data in folders_data]
-            labels = folders
-            data_subplot.hist(plot_data, bins = bins, alpha = 0.75, label = labels, density = True)
-            if efficiencies_plot:
-                x, efficiencies = efficiency_value(folders_data, binsize)
-                sides = ["left", "right"]
-                for side_index, side in enumerate(efficiencies):
-                    for folder_index, folder in enumerate(side):
-                        label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                        efficiencies_subplot.plot(x, folder, label = label)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
-        else:
-            for folder_index, folder_data in enumerate(folders_data):
+        for folder_index, folder_data in enumerate(folders_data):
+            if combine_files:
+                plot_data = unpacker(folder_data, [])
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                labels = folders
+                label = labels[folder_index]
+                data_subplot.plot(x, y, alpha = 0.75, label = label)
+            else:
                 labels = filename_list[folder_index]
                 for file_index, file_data in enumerate(folder_data):
+                    plot_data = file_data
+                    efficiency_data.append(plot_data) if efficiencies_plot else None
+                    x, y = data_binner(plot_data, binsize, plot = True)
                     label = labels[file_index]
-                    data_subplot.hist(file_data, bins = bins, alpha = 0.5, label = label, density = True)
-            if efficiencies_plot:
-                x, efficiencies = efficiency_value(folders_data, binsize)
-                sides = ["left", "right"]
-                for side_index, side in enumerate(efficiencies):
-                    for folder_index, folder in enumerate(side):
-                        label = "efficiencies for " + folders[folder_index] + " to the " + sides[side_index]
-                        efficiencies_subplot.plot(x, folder, label = label)
-                efficiencies_subplot.set_xlim(x_interval)
-                efficiencies_subplot.legend(prop = {'size': 8}, loc = "upper right")
+                    data_subplot.plot(x, y, alpha = 0.75, label = label)
+
+        if efficiencies_plot:    
+            efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
         data_subplot.legend(prop = {'size': 8})
 
     plt.show()
     
+
+def phi_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
+    stuffs = [stuff for stuff in stuffs if stuff != "MET"]
+    for stuff_index, stuff in enumerate(stuffs):
+        subfig = plt.figure()
+        style = "seaborn-darkgrid"
+        plt.style.use(style)
+        title = "Phi Distribution for " + stuff + "s"
+        subfig.suptitle(title)
+
+        if efficiencies_plot:
+            subplots = subfig.subplots(1, 3)
+            efficiency_data = []
+            data_subplot = subplots[0]
+        else:
+            data_subplot = subfig.subplots(1, 1)
+
+        data_subplot.set_xlabel(xlabel)
+        data_subplot.set_ylabel("Frequency of Events")
+        interval_data = unpacker(folders_data, [])
+        x_interval = plot_filter(interval_data, filter_strength)
+        data_subplot.set_xlim(x_interval)
+
+        for folder_index, folder_data in enumerate(folders_data):
+            if combine_files:
+                plot_data = folder_data[stuff_index]
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                labels = folders
+                label = labels[folder_index]
+                data_subplot.plot(x, y, alpha = 0.75, label = label)
+            else:
+                labels = filename_list[folder_index]
+                for file_index, file_data in enumerate(folder_data):
+                    plot_data = file_data[stuff_index]
+                    efficiency_data.append(plot_data) if efficiencies_plot else None
+                    x, y = data_binner(plot_data, binsize, plot = True)
+                    label = labels[file_index]
+                    data_subplot.plot(x, y, alpha = 0.75, label = label)
+
+        if efficiencies_plot:
+            efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
+        data_subplot.legend(prop = {'size': 8})
+        plt.show()
+
     
-    
-    
-    
-    
+def phi_diff_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot):
+    stuffs = [stuff for stuff in stuffs if stuff != "MET"]
+    for stuff_index, stuff in enumerate(stuffs):
+        subfig = plt.figure()
+        style = "seaborn-darkgrid"
+        plt.style.use(style)
+        title = "Phi Between Biggest PT and MET for " + stuff + "s"
+        subfig.suptitle(title)
+
+        if efficiencies_plot:
+            subplots = subfig.subplots(1, 3)
+            efficiency_data = []
+            data_subplot = subplots[0]
+        else:
+            data_subplot = subfig.subplots(1, 1)
+
+        data_subplot.set_xlabel(xlabel)
+        data_subplot.set_ylabel("Frequency of Events")
+        interval_data = unpacker(folders_data, [])
+        x_interval = plot_filter(interval_data, filter_strength)
+        data_subplot.set_xlim(x_interval)
+
+        for folder_index, folder_data in enumerate(folders_data):
+            if combine_files:
+                plot_data = folder_data[stuff_index]
+                efficiency_data.append(plot_data) if efficiencies_plot else None
+                x, y = data_binner(plot_data, binsize, plot = True)
+                labels = folders
+                label = labels[folder_index]
+                data_subplot.plot(x, y, alpha = 0.75, label = label)
+            else:
+                labels = filename_list[folder_index]
+                for file_index, file_data in enumerate(folder_data):
+                    plot_data = file_data[stuff_index]
+                    efficiency_data.append(plot_data) if efficiencies_plot else None
+                    x, y = data_binner(plot_data, binsize, plot = True)
+                    label = labels[file_index]
+                    data_subplot.plot(x, y, alpha = 0.75, label = label)
+
+        if efficiencies_plot:
+            efficiency_value(subplots, efficiency_data, xlabel, folders, binsize, interval_data, filter_strength)
+        data_subplot.legend(prop = {'size': 8})
+        plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

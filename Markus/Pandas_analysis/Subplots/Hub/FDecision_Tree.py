@@ -1,6 +1,8 @@
 # Import modules
 import numpy as np
 from tqdm import tqdm
+import pandas as pd
+import os
 
 # Import functions
 from Afiles import files
@@ -10,14 +12,37 @@ folders = ["BH", "Sphaleron"]
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 file_amounts = [18, 3]
 
-from Afiles import files
-folder_list, filename_list = files(individual, data_path, folders, stuffs, file_amounts)
-
-
 efficiency_variables = {
     0: [10, "stuff per event (84.8%)"],
     1: [1600, "max PT per event (84.1%)"]
     }
+
+
+
+def data(folder, stuffs):
+    folder_data = []
+    for file in folder:
+        file_data = []
+        for stuff_data in file:
+            stuff_name = os.path.split(stuff_data)[1]
+            if stuff_name[:-len(".csv")] in stuffs:
+                data = pd.read_csv(stuff_data)
+                event_num = data["event#"]
+                phi = data["phi"]
+                pt = data["PT"]
+                particle_name = [stuff_name[:-len(".csv")] for i in range(len(event_num))]
+                data_tuple_list = list(zip(phi, pt, event_num, particle_name))
+                data_tuple_list = [(data_tuple[0] + 3.142, data_tuple[1], data_tuple[2], tuple[3]) for data_tuple in data_tuple_list]
+                file_data.append(data_tuple_list)
+        include_MET = True
+        folder_data.append(file_data)
+
+    return folder_data
+
+
+
+from Afiles import files
+folder_list, filename_list = files(individual, data_path, folders, stuffs, file_amounts)
 
 
 from Cplotter import data_binner
@@ -48,7 +73,6 @@ for folder_index, folder in tqdm(enumerate(folder_list)):
 
     
     for dataset_index, dataset in enumerate(datasets):
-        print(dataset)
         is_sphal = sphal_or_bh(dataset, binsize, efficiency_line)
         dataset_categories[dataset_index].append(is_sphal)
     

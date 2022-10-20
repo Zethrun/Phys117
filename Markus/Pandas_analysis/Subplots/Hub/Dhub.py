@@ -9,11 +9,11 @@ individual = True
 folders = ["BH", "Sphaleron"]
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 bool_list = [True, False]
+file_amounts = [1, 1]
 
 
 MET_dist = bool_list[1]
 if MET_dist:
-    file_amounts = [1, 1]
     stuffs = ["MET"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
@@ -26,22 +26,20 @@ if MET_dist:
     folders_data = []
     for folder_index, folder in tqdm(enumerate(folder_list)):
         plot_data = MET_data(folder, stuffs, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
         folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
+    
+    efficiencies_plot = True
 
 
     from Cplotter import MET_dist
     
-    (binsize, filter_strengths, xlabel, compare) = (25, [10, 3], "MET [GeV]", True)
+    (binsize, filter_strength, xlabel) = (25, 1, "MET [GeV]")
 
-    MET_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
+    MET_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
         
 
 HT_dist = bool_list[1]
 if HT_dist:
-    file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
@@ -54,22 +52,20 @@ if HT_dist:
     folders_data = []
     for folder_index, folder in tqdm(enumerate(folder_list)):
         plot_data = HT_data(folder, stuffs, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
         folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
-
-
-    from Cplotter import HT_dist
     
-    (binsize, filter_strengths, xlabel, compare) = (100, [10, 3], "HT [GeV]", True)
+    efficiencies_plot = True
 
-    HT_dist(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
+
+    from Cplotter import HT_dist_plot
+    
+    (binsize, filter_strength, xlabel) = (100, 1, "HT [GeV]")
+
+    HT_dist_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
 
 
 stuff_amount = bool_list[1]
 if stuff_amount:
-    file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
@@ -82,22 +78,20 @@ if stuff_amount:
     folders_data = []
     for folder_index, folder in tqdm(enumerate(folder_list)):
         plot_data = stuff_amount_data(folder, stuffs, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
         folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
+    
+    efficiencies_plot = True
 
 
     from Cplotter import stuff_amount_plot
     
-    (binsize, filter_strengths, xlabel, compare) = (0.5, [10, 0], "Particle Amount", True)
+    (binsize, filter_strength, xlabel) = (0.5, 1, "Particle Amount")
 
-    stuff_amount_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
+    stuff_amount_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
 
 
 stuff_count = bool_list[1]
 if stuff_count:
-    file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
@@ -110,17 +104,16 @@ if stuff_count:
     folders_data = []
     for folder_index, folder in tqdm(enumerate(folder_list)):
         plot_data = stuff_counts_data(folder, stuffs, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
         folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
+    
+    efficiencies_plot = True
 
 
     from Cplotter import stuff_counts_plot
     
-    (binsize, filter_strengths, xlabel, compare) = (0.5, [10, 0], "Particle Amount", True)
+    (binsize, filter_strength, xlabel) = (0.5, 1, "Particle Amount")
 
-    stuff_counts_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
+    stuff_counts_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
 
 
 PT_max = bool_list[0]
@@ -129,54 +122,87 @@ if PT_max:
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
+    efficiencies = []
+
+    for sphal_index, sphal_file in enumerate(folder_list[1]):
+        print("new sphal file")
+        for bh_index, bh_file in enumerate(folder_list[0]):
+            data_folder_list = [[bh_file], [sphal_file]]
+            name_list = [[filename_list[0][bh_index]], [filename_list[1][sphal_index]]]
+
+            from Bdata import PT_max_data
+
+            (data_variable, combine_files, by_particle) = ("PT", False, False)
+
+            folders_data = []
+            for folder_index, folder in tqdm(enumerate(data_folder_list)):
+                plot_data = PT_max_data(folder, stuffs, by_particle, data_variable, combine_files)
+                folders_data.append(plot_data)
+            
+            efficiencies_plot = True
 
 
-    from Bdata import PT_max_data
+            from Cplotter import PT_max_plot
+            
+            (binsize, filter_strength, xlabel) = (1, 0.975, "PT [GeV]")
 
-    (data_variable, combine_files, by_particle) = ("PT", True, False)
-
-    folders_data = []
-    for folder_index, folder in tqdm(enumerate(folder_list)):
-        plot_data = PT_max_data(folder, stuffs, by_particle, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
-        folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
-
-
-    from Cplotter import PT_max_plot
+            eff_tup = PT_max_plot(folders_data, folders, name_list, stuffs, by_particle, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
+            efficiencies.append(eff_tup)
     
-    (binsize, filter_strengths, xlabel, compare) = (100, [10, 3], "PT [GeV]", True)
+    print(efficiencies)
 
-    PT_max_plot(folders_data, folders, filename_list, stuffs, by_particle, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
-
-
-Phi_between_angles = bool_list[1]
-if Phi_between_angles:
-    file_amounts = [18, 3]
+Phis = bool_list[1]
+if Phis:
+    file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
     folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
 
 
-    from Bdata import Phi_between_angles_data
+    from Bdata import phi_data
 
-    (data_variable, combine_files) = ("PT", True)
+    (data_variable, combine_files, by_particle) = ("phi", False, True)
 
     folders_data = []
     for folder_index, folder in tqdm(enumerate(folder_list)):
-        plot_data = Phi_between_angles_data(folder, stuffs, data_variable, combine_files)
-        efficiencies_plot = True if len(plot_data) == 1 else False
+        plot_data = phi_data(folder, stuffs, by_particle, data_variable, combine_files)
         folders_data.append(plot_data)
-
-    efficiencies_plot = True if combine_files else False
-
-
-    from Cplotter import Phi_between_angles_plot
     
-    (binsize, filter_strengths, xlabel, compare) = (1, [10, 1], "Particle Amount", True)
+    efficiencies_plot = True
 
-    Phi_between_angles_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strengths, xlabel, compare, combine_files, efficiencies_plot)
+
+    from Cplotter import phi_plot
+    
+    (binsize, filter_strength, xlabel) = (0.15, 1, "phi [radians]")
+
+    phi_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
+
+
+Phi_between_angles = bool_list[1]
+if Phi_between_angles:
+    file_amounts = [1, 1]
+    stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
+    
+    folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
+
+
+    from Bdata import phi_diff_data
+
+    (data_variable, combine_files, by_particle) = ("phi", False, True)
+
+    folders_data = []
+    for folder_index, folder in tqdm(enumerate(folder_list)):
+        plot_data = phi_diff_data(folder, stuffs, by_particle, data_variable, combine_files)
+        folders_data.append(plot_data)
+    
+    efficiencies_plot = True
+
+
+    from Cplotter import phi_diff_plot
+    
+    (binsize, filter_strength, xlabel) = (0.15, 1, "phi [radians]")
+
+    phi_diff_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
 
 
 efficiency_variables = {

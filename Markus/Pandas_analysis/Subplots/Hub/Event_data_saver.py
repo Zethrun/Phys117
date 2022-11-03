@@ -180,7 +180,7 @@ print(counts)
 
 
 particles = np.array([stuff + str(count_index) for stuff_index, stuff in enumerate(stuffs) for count_index in range(1, counts[stuff_index])])
-data_variables = np.array(["eta", "phi", "PT", "jmass", "ntrk", "btag", "hadem", "ptmax", "stuff_amount", "MET"])
+data_variables = np.array(["ptmax", "stuff_amount", "MET"])
 data = {stuff + "-" + str(count_index) + "." + str(variable_index): [np.nan for i in range(len(event_data))] for stuff_index, stuff in enumerate(stuffs) for count_index in range(1, counts[stuff_index]) for variable_index in range(len(data_variables))}
 data["dataset"] = [0 for i in range(len(event_data))]
 

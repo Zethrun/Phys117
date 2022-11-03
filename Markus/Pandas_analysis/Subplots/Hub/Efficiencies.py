@@ -8,7 +8,7 @@ from Afiles import files
 # Data variables
 data_path = "C:/Users/mhals/Dropbox/PC (2)/Documents/GitHub/Phys117/Data/Pandas/Individual/"
 individual = True
-folders = ["BH", "Sphaleron"]
+folders = ["Background", "BH", "Sphaleron"]
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 bool_list = [True, False]
 file_amounts = [1, 1]
@@ -120,7 +120,7 @@ def efficiency_value(efficiency_data, binsize):
 
 
 
-PT_max = bool_list[1]
+PT_max = bool_list[0]
 if PT_max:
     file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
@@ -153,7 +153,7 @@ if PT_max:
     print(av_eff)
 
 
-stuff_amount = bool_list[1]
+stuff_amount = bool_list[0]
 if stuff_amount:
     file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
@@ -186,7 +186,7 @@ if stuff_amount:
     print(av_eff)
 
 
-MET_dist = bool_list[1]
+MET_dist = bool_list[0]
 if MET_dist:
     file_amounts = [1, 1]
     stuffs = ["MET"]

@@ -179,7 +179,7 @@ if Phis:
     phi_plot(folders_data, folders, filename_list, stuffs, binsize, filter_strength, xlabel, combine_files, efficiencies_plot)
 
 
-Phi_between_angles = bool_list[1]
+Phi_between_angles = bool_list[0]
 if Phi_between_angles:
     file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]

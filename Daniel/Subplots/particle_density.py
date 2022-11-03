@@ -38,7 +38,7 @@ def org_file_folder(path_list):
         path_file_list = [path + "/" + files for files in os.listdir(path)]
         for file in path_file_list:
             path_particle_list = [file + "/" + particle_file for particle_file in os.listdir(file)]
-            org_dict[path_names[index]].append([,path_particle_list])
+            org_dict[path_names[index]].append([path_particle_list])
 
     return org_dict
 

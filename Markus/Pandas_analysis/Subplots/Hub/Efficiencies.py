@@ -6,17 +6,12 @@ import numpy as np
 from Afiles import files
 
 # Data variables
+data_path = "C:/Users/mhals/Dropbox/PC (2)/Documents/GitHub/Phys117/Data/Pandas/Individual/"
 individual = True
 folders = ["BH", "Sphaleron"]
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 bool_list = [True, False]
 file_amounts = [1, 1]
-
-
-
-
-
-
 
 
 
@@ -106,25 +101,31 @@ def efficiency_value(efficiency_data, binsize):
             bh_efficiency = np.sum(bh_split[i])
             sphal_efficiency = np.sum(sphal_split[i])
             total_efficiency = bh_efficiency + sphal_efficiency
-            temp_efficiency.append(total_efficiency)
+            if i == 0:
+                temp_efficiency.append((total_efficiency, "BH < Sphal"))
+            else:
+                temp_efficiency.append((total_efficiency, "BH > Sphal"))
 
-        total_efficiencies.append((np.max(temp_efficiency), bin))
+
+
+        total_efficiencies.append((*sorted(temp_efficiency, key = lambda x: x[0])[-1], bin))
     
     max_efficiency = sorted(total_efficiencies, key = lambda x: x[0])[-1]
     me_value = max_efficiency[0] / 2
-    me_bin = max_efficiency[1]
+    me_dir = max_efficiency[1]
+    me_bin = max_efficiency[2]
     me_x = x_min + me_bin * binsize
     
-    return [me_x, me_value]
+    return [me_x, me_value, me_dir]
 
 
 
-PT_max = bool_list[0]
+PT_max = bool_list[1]
 if PT_max:
-    file_amounts = [18, 3]
+    file_amounts = [1, 1]
     stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
     
-    folder_list, filename_list = files(individual, folders, stuffs, file_amounts)
+    folder_list, filename_list = files(individual, data_path, folders, stuffs, file_amounts)
     efficiencies = []
 
     for sphal_index, sphal_file in enumerate(folder_list[1]):
@@ -141,35 +142,81 @@ if PT_max:
                 plot_data = PT_max_data(folder, stuffs, by_particle, data_variable, combine_files)
                 folders_data.append(plot_data)
 
+            efficiency_data = []
+            for folder_index, folder_data in enumerate(folders_data):
+                plot_data = unpacker(folder_data, [])
+                efficiency_data.append(plot_data)
+            eff_tup = efficiency_value(efficiency_data, binsize = 1)
+            efficiencies.append(eff_tup)
+
+    av_eff = np.sum([eff_tup[0] for eff_tup in efficiencies]) / len(efficiencies)
+    print(av_eff)
 
 
-            temp_stuffs = [stuff for stuff in stuffs if stuff != "MET"]
-            if by_particle:
-                for stuff in temp_stuffs:
-                    efficiency_data = []
-                    for folder_data in folders_data:
-                        if combine_files:
-                            plot_data = [event_data[0] for event_data in folder_data if event_data[-1] == stuff]
-                            efficiency_data.append(plot_data)
-                        else:
-                            for file_index, file_data in enumerate(folder_data):
-                                plot_data = [event_data[0] for event_data in file_data if event_data[-1] == stuff]
-                                efficiency_data.append(plot_data)
-                    eff_tup = efficiency_value(efficiency_data, binsize = 1)
-                    efficiencies.append(eff_tup)
-            
-            else:
-                efficiency_data = []
-                for folder_index, folder_data in enumerate(folders_data):
-                    if combine_files:
-                        plot_data = unpacker(folder_data, [])
-                        efficiency_data.append(plot_data)
-                    else:
-                        for file_index, file_data in enumerate(folder_data):
-                            plot_data = file_data
-                            efficiency_data.append(plot_data)
-                eff_tup = efficiency_value(efficiency_data, binsize = 1)
-                efficiencies.append(eff_tup)
+stuff_amount = bool_list[1]
+if stuff_amount:
+    file_amounts = [1, 1]
+    stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
+    
+    folder_list, filename_list = files(individual, data_path, folders, stuffs, file_amounts)
+    efficiencies = []
+
+    for sphal_index, sphal_file in enumerate(folder_list[1]):
+        for bh_index, bh_file in enumerate(folder_list[0]):
+            data_folder_list = [[bh_file], [sphal_file]]
+            name_list = [[filename_list[0][bh_index]], [filename_list[1][sphal_index]]]
+
+            from Bdata import stuff_amount_data
+
+            (data_variable, combine_files) = ("PT", False)
+
+            folders_data = []
+            for folder_index, folder in tqdm(enumerate(data_folder_list)):
+                plot_data = stuff_amount_data(folder, stuffs, data_variable, combine_files)
+                folders_data.append(plot_data)
+
+            efficiency_data = []
+            for folder_index, folder_data in enumerate(folders_data):
+                plot_data = unpacker(folder_data, [])
+                efficiency_data.append(plot_data)
+            eff_tup = efficiency_value(efficiency_data, binsize = 1)
+            efficiencies.append(eff_tup)
+
+    av_eff = np.sum([eff_tup[0] for eff_tup in efficiencies]) / len(efficiencies)
+    print(av_eff)
 
 
-    print(efficiencies)
+MET_dist = bool_list[1]
+if MET_dist:
+    file_amounts = [1, 1]
+    stuffs = ["MET"]
+    
+    folder_list, filename_list = files(individual, data_path, folders, stuffs, file_amounts)
+    efficiencies = []
+
+    for sphal_index, sphal_file in enumerate(folder_list[1]):
+        for bh_index, bh_file in enumerate(folder_list[0]):
+            data_folder_list = [[bh_file], [sphal_file]]
+            name_list = [[filename_list[0][bh_index]], [filename_list[1][sphal_index]]]
+
+            from Bdata import MET_data
+
+            (data_variable, combine_files, by_particle) = ("PT", False, False)
+
+            folders_data = []
+            for folder_index, folder in tqdm(enumerate(data_folder_list)):
+                plot_data = MET_data(folder, stuffs, data_variable, combine_files)
+                folders_data.append(plot_data)
+
+
+            efficiency_data = []
+            for folder_index, folder_data in enumerate(folders_data):
+                plot_data = unpacker(folder_data, [])
+                efficiency_data.append(plot_data)
+            eff_tup = efficiency_value(efficiency_data, binsize = 1)
+            efficiencies.append(eff_tup)
+
+    av_eff = np.sum([eff_tup[0] for eff_tup in efficiencies]) / len(efficiencies)
+    print(av_eff)
+
+

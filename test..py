@@ -1,9 +1,6 @@
 import numpy as np
 
+a = np.array([0, 2, 5, 1, 2, 3])
 
 
-ang = 3 * np.pi / 2
-
-print(ang % np.pi)
-
-
+print(a.argsort())

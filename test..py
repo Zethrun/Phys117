@@ -1,6 +1,8 @@
 import numpy as np
 
-a = [1, 2, 3]
-b = [4, 5, 6]
 
-print(list(zip(a, b)))
+
+a = [np.nan for i in range(4)]
+a = [pog for pog in a if not np.isnan(pog)]
+
+print(a)

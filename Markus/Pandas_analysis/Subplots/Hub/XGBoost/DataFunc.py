@@ -1,11 +1,8 @@
 import pandas as pd
 import os
 
-def remover(old_list, to_be_removed):
-    if type(to_be_removed) == list:
-        new_list = [element for element in old_list if element not in to_be_removed]
-    else:
-        new_list = [element for element in old_list if element != to_be_removed]
+def remover(old_list, index):
+    new_list = [element for element_index, element in enumerate(old_list) if element_index != index]
     return new_list
 
 
@@ -25,7 +22,7 @@ def event_categorizer(file_data, stuffs, event_num_index):
     for stuff_data in file_data:
         for particle in stuff_data:
             event_num = particle[event_num_index]
-            particle = tuple(remover(list(particle), event_num))
+            particle = tuple(remover(list(particle), event_num_index))
             events_dict[event_num].append(particle)
     
     events_data = [tuple(event) for event in list(events_dict.values())]

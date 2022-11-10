@@ -90,7 +90,9 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
     return output_dataframe, labels
 
 
-def plotter(data_variables, output_dataframe, output_filenames, filter_strengths, binsizes):
+def plotter(data_variables, output_dataframes, output_filenames, filter_strengths, binsizes):
+    output_dataframes = unpacker(output_dataframes, [])
+    output_filenames = unpacker(output_filenames, [])
     fig = plt.figure(figsize = (30, 6))
     style = "seaborn-v0_8-darkgrid"
     plt.style.use(style)
@@ -105,10 +107,10 @@ def plotter(data_variables, output_dataframe, output_filenames, filter_strengths
 
         binsize = binsizes[variable_index] if type(binsizes) == list else binsizes
         filter_strength = filter_strengths[variable_index] if type(filter_strengths) == list else filter_strengths
-        interval = np.concatenate([dataframe[variable] for dataframe in output_dataframe])
+        interval = np.concatenate([dataframe[variable] for dataframe in output_dataframes])
         ax.set_xlim(plot_filter(interval, filter_strength))
 
-        for dataframe, label in zip(output_dataframe, output_filenames):
+        for dataframe, label in zip(output_dataframes, output_filenames):
             raw_data = dataframe[variable]
             bins, counts = data_binner(raw_data, binsize)
             ax.plot(bins, counts, label = label)

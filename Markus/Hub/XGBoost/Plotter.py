@@ -7,6 +7,10 @@ import os
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 data_variables = ["met", "HT", "stuff_amount", "ptmax", "phi_diff"]
 file_amounts = [2, 18, 3]
+font = {'family': 'Times New Roman',
+        'color':  'black',
+        'weight': 'normal'
+        }
 
 
 def work_space(path):
@@ -90,23 +94,26 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
     return output_dataframe, labels
 
 
-def plotter(data_variables, output_dataframes, output_filenames, filter_strengths, binsizes):
+def plotter(variables, output_dataframes, output_filenames, filter_strengths, binsizes):
     output_dataframes = unpacker(output_dataframes, [])
     output_filenames = unpacker(output_filenames, [])
     fig = plt.figure(figsize = (30, 6))
     style = "seaborn-v0_8-darkgrid"
     plt.style.use(style)
-    subplots = fig.subplots(1, len(data_variables))
+    subplots = fig.subplots(1, len(variables))
+    titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]
+    xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
 
-    for variable_index, variable in enumerate(data_variables):
+    for variable_index, variable in enumerate(variables):
         ax = subplots[variable_index]
-        title = variable + " Distribution"
-        ax.set_title(title)
-        ax.set_xlabel(variable)
-        ax.set_ylabel("frequency")
+        title = titles[data_variables.index(variable)] + " Distribution"
+        ax.set_title(title, fontdict = font, fontsize = 24)
+        xlabel = titles[data_variables.index(variable)] + " " + xlabels[data_variables.index(variable)]
+        ax.set_xlabel(xlabel, fontdict = font, fontsize = 16)
+        ax.set_ylabel("Relative Frequency", fontdict = font, fontsize = 16)
 
-        binsize = binsizes[variable_index] if type(binsizes) == list else binsizes
-        filter_strength = filter_strengths[variable_index] if type(filter_strengths) == list else filter_strengths
+        binsize = binsizes[data_variables.index(variable)] if type(binsizes) == list else binsizes
+        filter_strength = filter_strengths[data_variables.index(variable)] if type(filter_strengths) == list else filter_strengths
         interval = np.concatenate([dataframe[variable] for dataframe in output_dataframes])
         ax.set_xlim(plot_filter(interval, filter_strength))
 

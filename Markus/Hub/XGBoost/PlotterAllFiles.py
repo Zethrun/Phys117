@@ -97,7 +97,7 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
 
 def plotter(data_variables, output_dataframe, filter_strengths, binsizes):
     for variable_index, variable in enumerate(data_variables):
-        fig = plt.figure(figsize = (30, 6))
+        fig = plt.figure(figsize = (12, 6))
         style = "seaborn-v0_8-darkgrid"
         plt.style.use(style)
         title = variable + " Distribution"

@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
-data_variables = ["met", "HT", "stuff_amount", "ptmax", "phi_diff"]
+data_variables = ["HT", "met", "phi_diff", "ptmax", "stuff_amount"]
 file_amounts = [2, 18, 3]
 font = {'family': 'Times New Roman',
         'color':  'black',

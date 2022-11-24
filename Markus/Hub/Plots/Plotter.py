@@ -7,6 +7,10 @@ import os
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]
 data_variables = ["met", "HT", "stuff_amount", "ptmax", "phi_diff"]
 file_amounts = [2, 18, 3]
+font = {'family': 'Times New Roman',
+        'color':  'black',
+        'weight': 'normal'
+        }
 
 
 def work_space(path):
@@ -90,56 +94,35 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
     return output_dataframe, labels
 
 
-def plotter(data_variables, output_dataframe, output_filenames, filter_strengths, binsizes):
-    fig = plt.figure()
-    style = "seaborn-darkgrid"
+def plotter(variables, output_dataframes, output_filenames, filter_strengths, binsizes):
+    output_dataframes = unpacker(output_dataframes, [])
+    output_filenames = unpacker(output_filenames, [])
+    fig = plt.figure(figsize = (30, 6))
+    style = "seaborn-v0_8-darkgrid"
     plt.style.use(style)
-    subplots = fig.subplots(1, len(data_variables))
+    subplots = fig.subplots(1, len(variables))
+    titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]
+    xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
 
-    for variable_index, variable in enumerate(data_variables):
+    for variable_index, variable in enumerate(variables):
         ax = subplots[variable_index]
-        title = variable + " Distribution"
-        ax.set_title(title)
-        ax.set_xlabel(variable)
-        ax.set_ylabel("frequency")
+        title = titles[data_variables.index(variable)] + " Distribution"
+        ax.set_title(title, fontdict = font, fontsize = 24)
+        xlabel = titles[data_variables.index(variable)] + " " + xlabels[data_variables.index(variable)]
+        ax.set_xlabel(xlabel, fontdict = font, fontsize = 16)
+        ax.set_ylabel("Relative Frequency", fontdict = font, fontsize = 16)
 
-        binsize = binsizes[variable_index] if type(binsizes) == list else binsizes
-        filter_strength = filter_strengths[variable_index] if type(filter_strengths) == list else filter_strengths
-        interval = np.concatenate([dataframe[variable] for dataframe in output_dataframe])
+        binsize = binsizes[data_variables.index(variable)] if type(binsizes) == list else binsizes
+        filter_strength = filter_strengths[data_variables.index(variable)] if type(filter_strengths) == list else filter_strengths
+        print(output_dataframes[0])
+        interval = np.concatenate([dataframe[variable] for dataframe in output_dataframes])
         ax.set_xlim(plot_filter(interval, filter_strength))
 
-        for dataframe, label in zip(output_dataframe, output_filenames):
+        for dataframe, label in zip(output_dataframes, output_filenames):
             raw_data = dataframe[variable]
             bins, counts = data_binner(raw_data, binsize)
             ax.plot(bins, counts, label = label)
         
         ax.legend(prop = {'size': 8})
     plt.show()
-    
-
-from FilesFunc import files
-folder_list, filename_list = files(data_path, folders, file_amounts)
-
-
-foldered_dataframes = [[pd.read_csv(data_file).drop("Unnamed: 0", axis = 1) for data_file in folder_files] for folder_files in folder_list]
-
-data_sample, labels = sampler(foldered_dataframes, filename_list, file_amounts = [0, 18, 3], combine_data = False)
-
-if "Background" in folders:
-    remove_index = folders.index("Background")
-    labels = remover(labels, remove_index)
-    data_sample = remover(data_sample, remove_index)
-
-
-bh_files = labels[0]
-bh_dataframes = data_sample[0]
-sphal_files = labels[1]
-sphal_dataframes = data_sample[1]
-
-
-
-for bh_dataframe, bh_file in zip(bh_dataframes, bh_files):
-    for sphal_dataframe, sphal_file in zip(sphal_dataframes, sphal_files):
-        plot_data = [bh_dataframe, sphal_dataframe]
-        plot_labels = [bh_file, sphal_file]
-        plotter(data_variables, plot_data, plot_labels, filter_strengths = [0.95, 0.975, 0.99, 0.95, 1], binsizes = [50, 50, 0.5, 50, 0.2])
+    plt.close()

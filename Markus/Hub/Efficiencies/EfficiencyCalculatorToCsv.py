@@ -183,4 +183,4 @@ foldered_dataframes = [[pd.read_csv(data_file).drop("Unnamed: 0", axis = 1) for 
 
 combine_data = False
 data_sample, labels, folders = sampler(foldered_dataframes, filename_list, folders, file_amounts = [0, 18, 3], combine_data = combine_data)
-eff_calc(data_sample, labels, combine_data, data_variables, binsizes = [50, 50, 0.5, 50, 0.2])
+eff_calc(data_sample, labels, combine_data, data_variables, binsizes = [1, 1, 0.5, 1, 0.01])

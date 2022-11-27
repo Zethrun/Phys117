@@ -98,7 +98,7 @@ def plotter(variables, output_dataframes, output_filenames, filter_strengths, bi
     output_dataframes = unpacker(output_dataframes, [])
     output_filenames = unpacker(output_filenames, [])
     fig = plt.figure(figsize = (30, 6))
-    style = "seaborn-v0_8-darkgrid"
+    style = "seaborn-darkgrid"
     plt.style.use(style)
     subplots = fig.subplots(1, len(variables))
     titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]

@@ -97,15 +97,14 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
 def plotter(variables, output_dataframes, output_filenames, filter_strengths, binsizes):
     output_dataframes = unpacker(output_dataframes, [])
     output_filenames = unpacker(output_filenames, [])
-    fig = plt.figure(figsize = (30, 6))
-    style = "seaborn-darkgrid"
-    plt.style.use(style)
-    subplots = fig.subplots(1, len(variables))
     titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]
     xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
 
     for variable_index, variable in enumerate(variables):
-        ax = subplots[variable_index]
+        fig = plt.figure(figsize = (12, 6))
+        style = "seaborn-darkgrid"
+        plt.style.use(style)
+        ax = fig.subplots(1, 1)
         title = titles[data_variables.index(variable)] + " Distribution"
         ax.set_title(title, fontdict = font, fontsize = 24)
         xlabel = titles[data_variables.index(variable)] + " " + xlabels[data_variables.index(variable)]

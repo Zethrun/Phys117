@@ -101,7 +101,7 @@ def plotter(variables, output_dataframes, output_filenames, filter_strengths, bi
     xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
 
     for variable_index, variable in enumerate(variables):
-        fig = plt.figure(figsize = (8, 6))
+        fig = plt.figure(figsize = (6, 12))
         style = "seaborn-darkgrid"
         plt.style.use(style)
         subplots = fig.subplots(1, 1)
@@ -114,11 +114,11 @@ def plotter(variables, output_dataframes, output_filenames, filter_strengths, bi
 
         binsize = binsizes[data_variables.index(variable)] if type(binsizes) == list else binsizes
         filter_strength = filter_strengths[data_variables.index(variable)] if type(filter_strengths) == list else filter_strengths
-        interval = np.concatenate([dataframe[variable] for dataframe in output_dataframes])
+        interval = np.concatenate([dataframe[0][variable] for dataframe in output_dataframes])
         ax.set_xlim(plot_filter(interval, filter_strength))
 
         for dataframe, label in zip(output_dataframes, output_filenames):
-            raw_data = dataframe[variable]
+            raw_data = dataframe[0][variable]
             bins, counts = data_binner(raw_data, binsize)
             ax.plot(bins, counts, label = label)
         

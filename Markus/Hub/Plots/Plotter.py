@@ -101,7 +101,7 @@ def plotter(variables, output_dataframes, output_filenames, filter_strengths, bi
     xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
 
     for variable_index, variable in enumerate(variables):
-        fig = plt.figure(figsize = (6, 12))
+        fig = plt.figure(figsize = (12, 6))
         style = "seaborn-darkgrid"
         plt.style.use(style)
         subplots = fig.subplots(1, 1)

@@ -94,34 +94,51 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
     return output_dataframe, labels
 
 
-def plotter(variables, output_dataframes, output_filenames, filter_strengths, binsizes):
-    output_dataframes = unpacker(output_dataframes, [])
-    output_filenames = unpacker(output_filenames, [])
+def plotter(variables, output_dataframes, output_filenames, colors, filter_strengths, binsizes):
     titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]
     xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
-
-    for variable_index, variable in enumerate(variables):
-        fig = plt.figure(figsize = (12, 6))
+    for variable in variables:
+        fig = plt.figure(figsize = (12, 30))
         style = "seaborn-darkgrid"
         plt.style.use(style)
-        subplots = fig.subplots(1, 1)
-        ax = subplots
-        title = titles[data_variables.index(variable)] + " Distribution"
-        ax.set_title(title, fontdict = font, fontsize = 24)
-        xlabel = titles[data_variables.index(variable)] + " " + xlabels[data_variables.index(variable)]
-        ax.set_xlabel(xlabel, fontdict = font, fontsize = 16)
-        ax.set_ylabel("Relative Frequency", fontdict = font, fontsize = 16)
+        subplots = fig.subplots(2, 1)
+        for i in range(2):
+            dataframes = unpacker(output_dataframes, [])
+            filenames = unpacker(output_filenames, [])
+            if i == 1:
+                dataframes = unpacker(remover(output_dataframes, 0), [])
+                filenames = unpacker(remover(output_filenames, 0), [])
+            color_indices = [0, 0, 0]
+            ax = subplots[i]
+            if i == 0:
+                title = titles[data_variables.index(variable)] + " Distribution"
+                ax.set_title(title, fontdict = font, fontsize = 24)
+            if i == 1:
+                xlabel = titles[data_variables.index(variable)] + " " + xlabels[data_variables.index(variable)]
+                ax.set_xlabel(xlabel, fontdict = font, fontsize = 16)
+            ax.set_ylabel("Relative Frequency", fontdict = font, fontsize = 16)
 
-        binsize = binsizes[data_variables.index(variable)] if type(binsizes) == list else binsizes
-        filter_strength = filter_strengths[data_variables.index(variable)] if type(filter_strengths) == list else filter_strengths
-        interval = np.concatenate([dataframe[0][variable] for dataframe in output_dataframes])
-        ax.set_xlim(plot_filter(interval, filter_strength))
+            binsize = binsizes[data_variables.index(variable)] if type(binsizes) == list else binsizes
+            filter_strength = filter_strengths[data_variables.index(variable)] if type(filter_strengths) == list else filter_strengths
+            interval = np.concatenate([dataframe[0][variable] for dataframe in dataframes])
+            ax.set_xlim(plot_filter(interval, filter_strength))
 
-        for dataframe, label in zip(output_dataframes, output_filenames):
-            raw_data = dataframe[0][variable]
-            bins, counts = data_binner(raw_data, binsize)
-            ax.plot(bins, counts, label = label)
-        
-        ax.legend(prop = {'size': 8})
+            for dataframe, label in zip(dataframes, filenames):
+                raw_data = dataframe[0][variable]
+                bins, counts = data_binner(raw_data, binsize)
+                if label[:len("ttbar")] == "ttbar":
+                    color = colors[0][color_indices[0]]
+                    color_indices[0] += 1
+                    ax.plot(bins, counts, label = label, color = color)
+                elif label[:len("BH")] == "BH":
+                    color = colors[1][color_indices[1]]
+                    color_indices[1] += 1
+                    ax.plot(bins, counts, label = label, color = color)
+                else:
+                    color = colors[2][color_indices[2]]
+                    color_indices[2] += 1
+                    ax.plot(bins, counts, label = label, color = color)
+            
+            ax.legend(prop = {'size': 8})
         plt.show()
         plt.close()

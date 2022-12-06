@@ -1,12 +1,21 @@
 # Import modules
 from tqdm import tqdm
 import numpy as np
+import os
 
 # Import functions
 from FilesFunc import files
 
 # Data variables
-data_path = "C:/Users/mhals/Dropbox/PC (2)/Documents/GitHub/Phys117/Data/Pandas/Individual/"
+def work_space(path):
+    while True:
+        if os.path.split(path)[1] != "Phys117":
+            path = os.path.split(path)[0]
+        else:
+            return path.replace("\\", "/")
+
+work_dir = work_space(os.getcwd())
+data_path = work_dir + "/Data/Pandas/"
 individual = True
 folders = ["Background", "BH", "Sphaleron"]
 stuffs = ["electron", "jet", "MET", "muon", "photon", "tau"]

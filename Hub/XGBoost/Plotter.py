@@ -21,7 +21,7 @@ def work_space(path):
             return path.replace("\\", "/")
 
 work_dir = work_space(os.getcwd())
-data_path = work_dir + "/Markus/Hub/VariableData/"
+data_path = work_dir + "/Hub/VariableData/"
 folders = os.listdir(data_path)
 data_files = [data_path + data_file for data_file in folders]
 

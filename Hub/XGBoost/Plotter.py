@@ -15,7 +15,7 @@ font = {'family': 'Times New Roman',
 
 def work_space(path):
     while True:
-        if os.path.split(path)[1] != "Phys117":
+        if os.path.split(path)[1] != "Programs":
             path = os.path.split(path)[0]
         else:
             return path.replace("\\", "/")
@@ -95,7 +95,7 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
 
 
 def plotter(variables, output_dataframes, output_filenames, colors, filter_strengths, binsizes, figsize):
-    titles = ["HT", "MET", "Phi Difference (Largest $P_T$ vs MET)", "Max $P_T$", "Object Multiplicity"]
+    titles = ["$H_T$", "MET", "$\phi_{diff}$ (Largest $P_T$ vs MET)", "$P_{Tmax}$", "Object Multiplicity"]
     xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
     for variable in variables:
         fig = plt.figure(figsize = (12, figsize))

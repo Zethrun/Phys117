@@ -96,7 +96,7 @@ def sampler(output_dataframe, output_filenames, file_amounts, combine_data):
 
 def plotter(variables, output_dataframes, output_filenames, colors, filter_strengths, binsizes, figsize):
     titles = ["$H_T$", "MET", "$\phi_{diff}$ (Largest $P_T$ vs MET)", "$P_{Tmax}$", "Object Multiplicity"]
-    xlabels = ["[GeV]", "[GeV]", "[Radians]", "[GeV]", ""]
+    xlabels = ["[GeV/c]", "[GeV]", "[Radians]", "[GeV/c]", ""]
     for variable in variables:
         fig = plt.figure(figsize = (12, figsize))
         style = "seaborn-darkgrid"
